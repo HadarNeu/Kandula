@@ -45,7 +45,7 @@ resource "aws_internet_gateway" "igw" {
   }
 }
 
-#### Elasic IPs ####
+#### Elasic IPs for NAT ####
 resource "aws_eip" "eip" {
   count = length(var.private_subnets_cidr_list)
 
@@ -75,7 +75,7 @@ resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.vpc.id
 
   tags = {
-    "Name" = "public-route-table-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}"
+    "Name" = "public-route-table-${var.vpc_name}"
   }
 }
 
@@ -91,6 +91,10 @@ resource "aws_route_table" "private_route_tables" {
 
 #### Public route table association ####
 resource "aws_route_table_association" "public" {
+  depends_on = [ 
+    aws_route_table.public_route_table,
+    aws_subnet.public
+  ]
   count          = length(var.public_subnets_cidr_list)
   subnet_id      = aws_subnet.public.*.id[count.index]
   route_table_id = aws_route_table.public_route_table.id
@@ -98,23 +102,26 @@ resource "aws_route_table_association" "public" {
 
 #### Private route table association ####
 resource "aws_route_table_association" "private" {
+    depends_on = [ 
+    aws_route_table.private_route_tables,
+    aws_subnet.private
+  ]
   count          = length(var.private_subnets_cidr_list)
   subnet_id      = aws_subnet.private.*.id[count.index]
   route_table_id = aws_route_table.private_route_tables[count.index].id
 }
 
 #### Public route for the public route table ####
-resource "aws_route" "public" {
-  count          = length(var.public_subnets_cidr_list)
-  route_table_id         = aws_route_table.route_tables[count.index].id
+resource "aws_route" "igw_public_route" {
+  route_table_id         = aws_route_table.public_route_table.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.igw.id
 }
 
 #### Public route for private route tables ####
-resource "aws_route" "private" {
+resource "aws_route" "nat_private_route" {
   count                  = length(var.private_subnets_cidr_list)
-  route_table_id         = aws_route_table.route_tables.*.id[count.index + 1]
+  route_table_id         = aws_route_table.private_route_tables.*.id[count.index]
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.nat.*.id[count.index]
 }
