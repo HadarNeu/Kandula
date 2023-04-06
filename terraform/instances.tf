@@ -10,17 +10,17 @@ resource "aws_instance" "nginx" {
 #   user_data                   = local.my-nginx-instance-userdata
   user_data =  <<EOF
         #!/bin/bash
-        sudo yum update -y
-        sudo amazon-linux-extras install epel -y
-        sudo amazon-linux-extras install nginx1 -y
-        sudo chmod o+w /usr/share/nginx/html/index.html 
-        sudo echo "<h1>Welcome to Grandpa's Whiskey</h1>" > /usr/share/nginx/html/index.html
+        sudo apt update -y
+        sudo apt install nginx
         sudo systemctl enable nginx
         sudo systemctl start nginx
         sudo systemctl start sshd
   EOF
 #   iam_instance_profile        = aws_iam_instance_profile.nginx_instances.name
-
+        # sudo amazon-linux-extras install epel -y
+        # sudo amazon-linux-extras install nginx1 -y
+        # sudo chmod o+w /usr/share/nginx/html/index.html 
+        # sudo echo "<h1>Welcome to Grandpa's Whiskey</h1>" > /usr/share/nginx/html/index.html
   root_block_device {
     encrypted   = false
     volume_type = var.volumes_type
