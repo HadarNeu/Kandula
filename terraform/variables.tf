@@ -23,13 +23,13 @@ variable "ubuntu_account_number" {
 
 variable "ubuntu_version" {
   description = "The version of the offical Ubuntu Images"
-  default     = "22.04"
+  default     = "20.04"
   type        = string
 }
 
 variable "nginx_instances_count" {
   description = "The number of Nginx instances to create"
-  default     = 2
+  default     = 1
 }
 
 variable "DB_instances_count" {

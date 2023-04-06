@@ -1,14 +1,25 @@
 # INSTANCES
 resource "aws_instance" "nginx" {
   count                       = var.nginx_instances_count
-  ami                         = data.aws_ami.ubuntu-18.id
+  ami                         = data.aws_ami.ubuntu-ami.id
   instance_type               = var.instance_type
   key_name                    = var.key_name
-  subnet_id                   = module.vpc_module.public_subnets_id[count.index]
-  associate_public_ip_address = true
+  subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
+  associate_public_ip_address = false
   vpc_security_group_ids      = [aws_security_group.nginx_instances_access.id]
-  user_data                   = local.my-nginx-instance-userdata
-  iam_instance_profile        = aws_iam_instance_profile.nginx_instances.name
+#   user_data                   = local.my-nginx-instance-userdata
+  user_data =  <<EOF
+        #!/bin/bash
+        sudo yum update -y
+        sudo amazon-linux-extras install epel -y
+        sudo amazon-linux-extras install nginx1 -y
+        sudo chmod o+w /usr/share/nginx/html/index.html 
+        sudo echo "<h1>Welcome to Grandpa's Whiskey</h1>" > /usr/share/nginx/html/index.html
+        sudo systemctl enable nginx
+        sudo systemctl start nginx
+        sudo systemctl start sshd
+  EOF
+#   iam_instance_profile        = aws_iam_instance_profile.nginx_instances.name
 
   root_block_device {
     encrypted   = false
@@ -24,7 +35,7 @@ resource "aws_instance" "nginx" {
   }
 
   tags = {
-    "Name" = "nginx-web-${regex(".$", data.aws_availability_zones.available.names[count.index])}"
+    "Name" = "nginx-web-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${module.kandula-vpc.vpc_name}"
   }
 }
 
@@ -32,11 +43,11 @@ resource "aws_instance" "nginx" {
 
 
 resource "aws_security_group" "nginx_instances_access" {
-  vpc_id = module.vpc_module.vpc_id
+  vpc_id = module.kandula-vpc.vpc_id
   name   = "nginx-access"
 
   tags = {
-    "Name" = "nginx-access-${module.vpc_module.vpc_id}"
+    "Name" = "nginx-access-${module.kandula-vpc.vpc_name}"
   }
 }
 
