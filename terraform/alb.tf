@@ -87,10 +87,6 @@ resource "aws_security_group" "alb_sg" {
    }
 }
 
-output "lb_id" {
-  description = "The ID and ARN of the load balancer we created"
-  value       = try(aws_lb.app_alb.dns_name, "")
-}
 
 output "alb_dns" {
   description = "The DNS of the load balancer we created"

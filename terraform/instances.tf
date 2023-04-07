@@ -5,7 +5,7 @@ resource "aws_instance" "nginx" {
     instance_type               = var.instance_type
     key_name                    = var.key_name
     subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
-    associate_public_ip_address = true
+    associate_public_ip_address = false
     vpc_security_group_ids      = [aws_security_group.nginx_instances_access.id]
 #   user_data                   = local.my-nginx-instance-userdata
     user_data = <<-EOF
@@ -16,11 +16,7 @@ resource "aws_instance" "nginx" {
     sudo systemtl enable nginx
     echo "<h1>Welcome to Grandpas Whiskey</h1>" | sudo tee /var/www/html/index.html
     EOF
-#   iam_instance_profile        = aws_iam_instance_profile.nginx_instances.name
-        # sudo amazon-linux-extras install epel -y
-        # sudo amazon-linux-extras install nginx1 -y
-        # sudo chmod o+w /usr/share/nginx/html/index.html 
-        # sudo echo "<h1>Welcome to Grandpa's Whiskey</h1>" > /usr/share/nginx/html/index.html
+
         
   root_block_device {
     encrypted   = false
