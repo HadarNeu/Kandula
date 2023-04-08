@@ -3,7 +3,7 @@ module "eks" {
   version         = "19.10.0"
   cluster_name    = local.cluster_name
   cluster_version = var.kubernetes_version
-  subnet_ids         = module.vpc.private_subnets_id
+  subnet_ids         = module.kandula-vpc.private_subnets_id
   cluster_endpoint_private_access = false 
   cluster_endpoint_public_access = true 
   
@@ -15,7 +15,7 @@ module "eks" {
     GithubOrg   = "terraform-aws-modules"
   }
 
-  vpc_id = module.vpc.vpc_id
+  vpc_id = module.kandula-vpc.vpc_id
 
   eks_managed_node_group_defaults = {
       ami_type               = "AL2_x86_64"

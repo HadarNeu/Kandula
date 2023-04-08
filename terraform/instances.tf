@@ -4,8 +4,8 @@ resource "aws_instance" "nginx" {
     ami                         = data.aws_ami.ubuntu-ami.id
     instance_type               = var.instance_type
     key_name                    = var.key_name
-    subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
-    associate_public_ip_address = false
+    subnet_id                   = module.kandula-vpc.public_subnets_id[count.index]
+    associate_public_ip_address = true
     vpc_security_group_ids      = [aws_security_group.nginx_instances_access.id]
 #   user_data                   = local.my-nginx-instance-userdata
     user_data = <<-EOF

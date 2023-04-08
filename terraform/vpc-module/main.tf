@@ -1,13 +1,31 @@
+provider "aws" {
+  region  = var.aws_region
+}
+
+
 #### Getting the data of the available availability zones ####
 data "aws_availability_zones" "available" {}
+
 
 #### Creating a VPC   ######
 resource "aws_vpc" "vpc" {
   cidr_block           = var.vpc_cidr_block
 
   tags = {
-    "Name" = "${var.vpc_name}"
+    "Name" = "${var.vpc_name}",
+c
   }
+
+#   public_subnet_tags = {
+#     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+#     "kubernetes.io/role/elb"                      = "1"
+#   }
+
+#   private_subnet_tags = {
+#     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
+#     "kubernetes.io/role/internal-elb"             = "1"
+#   }
+#   }
 }
 
 #### Creating public subnets #####
@@ -19,7 +37,9 @@ resource "aws_subnet" "public" {
   availability_zone       = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    "Name" = "public-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}"
+    "Name" = "public-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}",
+    # "kubernetes.io/cluster/${local.cluster_name}" = "shared",
+    # "kubernetes.io/role/internal-elb"             = "1"
   }
 }
 
@@ -32,7 +52,9 @@ resource "aws_subnet" "private" {
   availability_zone       = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    "Name" = "private-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}"
+    "Name" = "private-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}",
+    # "kubernetes.io/cluster/${local.cluster_name}" = "shared",
+    # "kubernetes.io/role/internal-elb"             = "1"
   }
 }
 

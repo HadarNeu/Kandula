@@ -68,3 +68,24 @@ variable "purpose_tag" {
   default = "Whiskey"
   type    = string
 }
+
+variable "kubernetes_version" {
+  default = 1.24
+  description = "kubernetes version"
+}
+
+
+locals {
+  k8s_service_account_namespace = "default"
+  k8s_service_account_name      = "opsschool-sa"
+  # cluster_name = "kandula-opsschool-cluster"
+}
+
+locals {
+  cluster_name = "opsschool-eks-hadar-${random_string.suffix.result}"
+}
+
+resource "random_string" "suffix" {
+  length  = 8
+  special = false
+}

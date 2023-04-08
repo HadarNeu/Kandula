@@ -39,3 +39,11 @@ variable "aws_region" {
 #   default = ["public", "private-a", "private-b"]
 # }
 
+locals {
+  cluster_name = "opsschool-eks-hadar-${random_string.suffix.result}"
+}
+
+resource "random_string" "suffix" {
+  length  = 8
+  special = false
+}c
