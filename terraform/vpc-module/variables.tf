@@ -1,3 +1,9 @@
+variable "cluster_name" {
+  type = string
+  description = "[REQUIRED] The EKS cluster name"
+  default = null
+}
+
 variable "vpc_cidr_block" {
   type = string
   description = "The cidr block of the VPC"
@@ -27,23 +33,4 @@ variable "aws_region" {
   description = "The region of the VPC"
   default = "us-west-2"
 }
-# variable "public_route_tables_name_list" {
-#   type    = list(string)
-#   description = "List of the names of the route-tables (Module creates two RTBS, one public [0] and one private [1]"
-#   default = ["public", "private-a", "private-b"]
-# }
 
-# variable "private_route_tables_name_list" {
-#   type    = list(string)
-#   description = "List of the names of the route-tables (Module creates two RTBS, one public [0] and one private [1]"
-#   default = ["public", "private-a", "private-b"]
-# }
-
-locals {
-  cluster_name = "opsschool-eks-hadar-${random_string.suffix.result}"
-}
-
-resource "random_string" "suffix" {
-  length  = 8
-  special = false
-}
