@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kandula-app
+  annotations:
+    kubernetes.io/change-cause: "First release kandula:1.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kandula-app
+  template:
+    metadata:
+      labels:
+        app: kandula-app
+    spec:
+      containers:
+      - name: kandula
+        image: hadarneu/opsschool:1.0
+        ports:
+        - containerPort: 5000
+          name: http
+          protocol: TCP
