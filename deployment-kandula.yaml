@@ -16,7 +16,14 @@ spec:
     spec:
       containers:
       - name: kandula
-        image: hadarneu/opsschool:1.0
+        image: hadarneu/kandula:1.0
+        env:
+          - name: AWS_DEFAULT_REGION
+            value: "us-west-2"
+          - name: FLASK_APP
+            value: "kandula-app"
+          - name: FLASK_DEBUG
+            value: "1"
         ports:
         - containerPort: 5000
           name: http
