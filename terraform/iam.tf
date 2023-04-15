@@ -14,6 +14,7 @@ resource "aws_iam_role_policy_attachment" "policy_attachment_1" {
   policy_arn = aws_iam_policy.eks_node_policy.arn
   role       = each.value.iam_role_name
 }
+
 resource "aws_iam_policy" "eks_node_policy" {
   name        = "EKS-Node-Policy"
   path        = "/"
