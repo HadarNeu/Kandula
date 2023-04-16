@@ -1,14 +1,8 @@
 	pipeline {
-// ***********
-        // ****** TODO install dependencies on agents and change the AMI
-        // 
-// ***********
 
-
-	    // ***TODO insert the correct label
 	    agent {
 	        node {
-	            label 'aws-ec2-amazon-linux-agent'
+	            label 'aws-linux-ec2-plugin'
 	        }
 	    }
 	    
@@ -18,19 +12,22 @@
 	    AWS_DEFAULT_REGION  = "us-west-2"
 	    IMAGE_REPO_NAME     = "hadarneu"
 	    IMAGE_TAG           = "latest"
+		IMAGE_NAME          = "kandula"
 	    REPO_URL            = "https://github.com/HadarNeu/Kandula.git"
 	    PYTHON_APP_IMAGE    = "python:3.9-slim"
+		CLUSTER_NAME        = "opsschool-eks-hadar-IPw65Blz"
 	    }
 	    
 	    stages {
 	        
-            // ****** TODO credentials ID for github token!
-	        stage('Cloning Git') {
-	            steps {
-	                git url: "${REPO_URL}", branch: 'main',
-	                 credentialsId: 'Github_token'
-	            }
-	        } 
+
+        // ****** TODO credentials ID for github token! V
+        stage('Cloning Git') {
+            steps {
+                git url: "${REPO_URL}", branch: 'local-ubuntu',
+                 credentialsId: 'git-token-hadarneu'
+            }
+        }
 	        
 	        // Restarting docker     
 	        stage ('Restart docker') {
@@ -48,12 +45,11 @@
 	                }
 	            }
 	        }
-	        
+
 	         // Uploading Docker images into DockerHub
 	        stage('Pushing to DockerHub') {
 	            steps{
-	                script {
-	                    // sh "docker tag ${IMAGE_REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+	                withDockerRegistry(credentialsId: 'docker-hub-creds-hadarneu', url: '') {
 	                    sh "docker push ${IMAGE_REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
 	                }
 	            }
@@ -83,21 +79,32 @@
 	//         }
 	        
 
-	        // ********* TODO Insert credentials ID
 	        stage ("Login to EKS") {
 	            steps {
-	                withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'eks.cred', namespace: '', serverUrl: '') {
-	                }
+
+					withAWS(credentials:'aws-creds-hadarnoy') {
+    					sh "aws eks --region=${AWS_DEFAULT_REGION} update-kubeconfig --name ${CLUSTER_NAME}"
+					}
+					
 	              }
 	            }
 	        
 	        stage ("Deploy to EKS") {
 	            steps {
-	                sh "kubectl apply -f deployment-kandula.yaml"
-                    sh "kubectl apply -f lb-service-kandula.yaml"
+					withAWS(credentials:'aws-creds-hadarnoy') {
+						sh "kubectl apply -f deployment-kandula.yaml"
+						sh "kubectl apply -f lb-service-kandula.yaml"
+					}
+
 	                }
 	              }
-	        
+	        stage ("Display app link") {
+                steps {
+					withAWS(credentials:'aws-creds-hadarnoy') {
+						sh "kubectl describe svc kandula-app-lb-service | grep 'LoadBalancer Ingress:'"
+					}
+                }
+            }
             //  TODO Slack notification 
 	        // stage('Slack notification') {
 	        //     steps {
