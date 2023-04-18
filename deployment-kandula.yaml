@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kandula-app
+  annotations:
+    kubernetes.io/change-cause: "First release kandula:1.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kandula-app
+  template:
+    metadata:
+      labels:
+        app: kandula-app
+    spec:
+      containers:
+      - name: kandula
+        image: hadarneu/kandula:1.0
+        env:
+          - name: AWS_DEFAULT_REGION
+            value: "us-west-2"
+          - name: FLASK_APP
+            value: "kandula-app"
+          - name: FLASK_DEBUG
+            value: "1"
+        ports:
+        - containerPort: 5000
+          name: http
+          protocol: TCP
