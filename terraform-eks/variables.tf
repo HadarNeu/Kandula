@@ -1,12 +1,9 @@
-# locals "cluster_name" {
-#   description = "[REQUIRED] the name of the EKS cluster"
-#   default     = "opsschool-eks-hadar-wCthgH4i"
-#   type        = string
-# }
+########REQUIRED########
+######Make sure cluster name is updated with VPC!###########
 locals {
   k8s_service_account_namespace = "default"
   k8s_service_account_name      = "opsschool-sa"
-  cluster_name = "opsschool-eks-hadar-wCthgH4i"
+  cluster_name = "opsschool-eks-hadar-YrIrJOah"
 }
 
 variable "vpc-name" {
