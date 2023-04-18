@@ -21,7 +21,7 @@ data "aws_ami" "ubuntu-ami" {
 #####Pre-Configured Jenkins AMI############
 data "aws_ami" "jenkins-server-ami" {
   most_recent = true
-  owners      = [data.aws_caller_identity.account_id]
+  owners      = [data.aws_caller_identity.current.account_id]
 
   filter {
     name   = "name"

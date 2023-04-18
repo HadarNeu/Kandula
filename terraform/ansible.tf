@@ -5,7 +5,7 @@ resource "aws_instance" "ansible_server" {
   associate_public_ip_address = false
   subnet_id = module.kandula-vpc.private_subnets_id[count.index]
 
-  vpc_security_group_ids = [aws_security_group.ansible-sg.id]
+  vpc_security_group_ids = [aws_security_group.ansible_sg.id]
   key_name               = var.key_name
 
   user_data = <<EOF

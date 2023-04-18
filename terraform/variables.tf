@@ -24,13 +24,19 @@ variable "ubuntu_version" {
 
 variable "key_location" {
   description = "The ssh key local location to transfer to our server"
-  default     = "/home/ubuntu/.ssh/${var.key_name}.pem"
+  default     = "/home/ubuntu/.ssh/jenkins-kandula.pem"
   type        = string
 }
 
 variable "key_destination" {
   description = "The ssh key wanted destination on the ec2"
-  default     = "/home/ubuntu/${var.key_name}.pem"
+  default     = "/home/ubuntu/.ssh/jenkins-kandula.pem"
+  type        = string
+}
+
+variable "jenkins-ui-url" {
+  description = "The A record used for jenkins UI"
+  default     = "hadar.infitest.net"
   type        = string
 }
 

@@ -1,7 +1,7 @@
 
 resource "aws_instance" "jenkins_server" {
   count= var.jenkins_instances_count
-  ami = data.jenkins-server-ami.id
+  ami = data.aws_ami.jenkins-server-ami.id
   instance_type = var.jenkins-instance-type
   key_name = var.key_name
   subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
@@ -11,7 +11,7 @@ resource "aws_instance" "jenkins_server" {
   iam_instance_profile   = aws_iam_instance_profile.jenkins-server.name
 
   tags = {
-    Name = "Jenkins Server"
+    Name = "jenkins-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${module.kandula-vpc.vpc_name}"
     consul_server = "true"
   }
 

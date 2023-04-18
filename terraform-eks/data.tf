@@ -2,18 +2,14 @@ data "aws_availability_zones" "available" {}
 
 data "aws_caller_identity" "current" {}
 
-data "aws_eks_cluster" "eks" {
-  name = module.eks.cluster_name
-}
-
 data "aws_eks_cluster_auth" "eks" {
   name = module.eks.cluster_name
 }
 
-data "aws_vpc" "vpc" {
+data "aws_vpc" "kandula-vpc" {
   filter {
     name = "tag:Name"
-    values = ["Kandula-VPC"]
+    values = ["${var.vpc-name}"]
   }
 
   filter {
@@ -24,6 +20,9 @@ data "aws_vpc" "vpc" {
 }
 
 data "aws_subnets" "private" {
+  depends_on = [
+    data.aws_vpc.kandula-vpc
+  ]
   filter {
     name = "tag:Tier"
     values = ["Private"]
@@ -31,7 +30,7 @@ data "aws_subnets" "private" {
 
   filter {
     name = "vpc-id"
-    values = data.vpc.vpc_id
+    values = ["${data.aws_vpc.kandula-vpc.id}"]
   }
 }
 

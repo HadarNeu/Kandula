@@ -1,7 +1,7 @@
 #####A record for Jenkins Server########
 resource "aws_route53_record" "jenkins-dns" {
   zone_id = data.aws_route53_zone.hosted-zone-hadar.zone_id
-  name    = "hadar.infitest.net"
+  name    = var.jenkins-ui-url
   type    = "A"
 
   alias {

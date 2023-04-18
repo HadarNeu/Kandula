@@ -214,7 +214,7 @@ resource "aws_security_group_rule" "ansible_ssh_access" {
   description       = "allow ssh access from anywhere"
   from_port         = 22
   protocol          = "tcp"
-  security_group_id = aws_security_group.ansible-sg.id
+  security_group_id = aws_security_group.ansible_sg.id
   to_port           = 22
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
@@ -224,7 +224,7 @@ resource "aws_security_group_rule" "ansible_outbound_anywhere" {
   description       = "allow outbound traffic to anywhere"
   from_port         = 0
   protocol          = "-1"
-  security_group_id = aws_security_group.ansible-sg.id
+  security_group_id = aws_security_group.ansible_sg.id
   to_port           = 0
   type              = "egress"
   cidr_blocks       = ["0.0.0.0/0"]
@@ -234,7 +234,7 @@ resource "aws_security_group_rule" "ansible_icmp_access" {
   description       = "allow icmp access from anywhere- Internet Control Message Protocol"
   from_port         = 8
   protocol          = "icmp"
-  security_group_id = aws_security_group.ansible-sg.id
+  security_group_id = aws_security_group.ansible_sg.id
   to_port           = 0
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]

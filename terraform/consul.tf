@@ -1,8 +1,4 @@
 resource "aws_instance" "consul_server_subnet1" {
-  depends_on = [
-    aws_iam_instance_profile.consul-join,
-    aws_security_group.opsschool_consul
-  ]
   count = var.counsul_servers_count_subnet1
   ami           = data.aws_ami.ubuntu-ami.id
   instance_type = var.consul_instance_type
@@ -10,7 +6,7 @@ resource "aws_instance" "consul_server_subnet1" {
   subnet_id                   = module.kandula-vpc.private_subnets_id[0]
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
 
-  vpc_security_group_ids = [aws_security_group.opsschool_consul.id]
+  vpc_security_group_ids = [aws_security_group.consul-servers-sg.id]
   user_data            = file("${path.module}/scripts/consul-server-user-data.sh")
 
   tags = {
@@ -21,10 +17,6 @@ resource "aws_instance" "consul_server_subnet1" {
 }
 
 resource "aws_instance" "consul_server_subnet2" {
-  depends_on = [
-    aws_iam_instance_profile.consul-join,
-    aws_security_group.opsschool_consul
-  ]
   count = var.counsul_servers_count_subnet2
   ami           = data.aws_ami.ubuntu-ami.id
   instance_type = var.consul_instance_type
@@ -32,7 +24,7 @@ resource "aws_instance" "consul_server_subnet2" {
   subnet_id                   = module.kandula-vpc.private_subnets_id[1]
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
 
-  vpc_security_group_ids = [aws_security_group.opsschool_consul.id]
+  vpc_security_group_ids = [aws_security_group.consul-servers-sg.id]
   user_data            = file("${path.module}/scripts/consul-server-user-data.sh")
 
   tags = {

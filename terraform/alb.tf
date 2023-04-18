@@ -133,14 +133,14 @@ resource "aws_lb_target_group_attachment" "jenkins_tg_attachment" {
 
 
 # A listener to recieve incoming traffic
-resource "aws_lb_listener" "consul_lb_listener" {
-  load_balancer_arn = aws_lb.consul_alb.arn
+resource "aws_lb_listener" "jenkins_lb_listener" {
+  load_balancer_arn = aws_lb.jenkins_alb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.consul_tg.arn
+    target_group_arn = aws_lb_target_group.jenkins_tg.arn
   }
 
   tags = {

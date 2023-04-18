@@ -6,11 +6,18 @@ resource "aws_instance" "bastion" {
     key_name                    = var.key_name
     subnet_id                   = module.kandula-vpc.public_subnets_id[count.index]
     associate_public_ip_address = true
-    vpc_security_group_ids      = [aws_security_group.nginx_instances_access.id]
+    vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
 
     provisioner "file" {
       source      = "${var.key_location}"
       destination = "${var.key_destination}"
+    }
+
+    connection {
+      type     = "ssh"
+      user     = "ubuntu"
+      host     = "${self.public_ip}"
+      private_key = file("${var.key_location}")
     }
 
     provisioner "remote-exec" {
