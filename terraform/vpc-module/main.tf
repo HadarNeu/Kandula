@@ -14,18 +14,9 @@ resource "aws_vpc" "vpc" {
   tags = {
     "Name" = "${var.vpc_name}"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "Project" = "Kandula"
   }
 
-#   public_subnet_tags = {
-#     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-#     "kubernetes.io/role/elb"                      = "1"
-#   }
-
-#   private_subnet_tags = {
-#     "kubernetes.io/cluster/${local.cluster_name}" = "shared"
-#     "kubernetes.io/role/internal-elb"             = "1"
-#   }
-#   }
 }
 
 #### Creating public subnets #####
@@ -40,6 +31,7 @@ resource "aws_subnet" "public" {
     "Name" = "public-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"             = "1"
+    "Tier" = "Public"
   }
 }
 
@@ -53,6 +45,7 @@ resource "aws_subnet" "private" {
 
   tags = {
     "Name" = "private-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}"
+    "Tier" = "Private"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb"             = "1"
   }

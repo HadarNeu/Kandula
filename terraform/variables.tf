@@ -1,22 +1,17 @@
+########GENERAL################
 variable "aws_region" {
   default = "us-west-2"
   type    = string
 }
 
-variable "instance_type" {
-  description = "The type of the ec2"
-  default     = "t2.micro"
-  type        = string
-}
-
 variable "key_name" {
   description = "The key name of the Key Pair to use for the instance"
-  default     = "coredns_key"
+  default     = "jenkins-kandula"
   type        = string
 }
 
 variable "ubuntu_account_number" {
-  description = "The AWS account number of the offical Ubuntu Images"
+  description = "The AWS account number Canonial -offical Ubuntu Images"
   default     = "099720109477"
   type        = string
 }
@@ -27,59 +22,86 @@ variable "ubuntu_version" {
   type        = string
 }
 
-variable "nginx_instances_count" {
-  description = "The number of Nginx instances to create"
+variable "key_location" {
+  description = "The ssh key local location to transfer to our server"
+  default     = "/home/ubuntu/.ssh/jenkins-kandula.pem"
+  type        = string
+}
+
+variable "key_destination" {
+  description = "The ssh key wanted destination on the ec2"
+  default     = "/home/ubuntu/.ssh/jenkins-kandula.pem"
+  type        = string
+}
+
+variable "jenkins-ui-url" {
+  description = "The A record used for jenkins UI"
+  default     = "hadar.infitest.net"
+  type        = string
+}
+
+
+########JENKINS################
+variable "jenkins-ami-name" {
+  description = "The name of the pre-configured Jenkins ami"
+  default = "jenkins-server-ami-hadarnoy-kandula-1.1"
+  type = string
+}
+
+variable "jenkins-instance-type" {
+  description = "The type of the Jenkins Server ec2"
+  default = "t3.medium"
+  type = string
+}
+
+variable "jenkins_instances_count" {
+  description = "The number of bastion instances to create"
   default     = 1
 }
 
-variable "DB_instances_count" {
-  description = "The number of DB instances to create"
+########BASTION################
+variable "bastion_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
+}
+
+variable "bastion_instance_type" {
+  description = "The type of the ec2"
+  default     = "t2.micro"
+  type        = string
+}
+
+
+########CONSUL################
+variable "counsul_servers_count_subnet1" {
+  description = "The number of consul servers instances to create"
   default     = 2
 }
 
-variable "nginx_root_disk_size" {
-  description = "The size of the root disk"
-  default     = 10
+variable "counsul_servers_count_subnet2" {
+  description = "The number of consul servers instances to create"
+  default     = 1
 }
 
-variable "nginx_encrypted_disk_size" {
-  description = "The size of the secondary encrypted disk"
-  default     = 10
-}
-
-variable "nginx_encrypted_disk_device_name" {
-  description = "The name of the device of secondary encrypted disk"
-  default     = "xvdh"
+variable "consul_instance_type" {
+  description = "The type of the ec2"
+  default     = "t2.micro"
   type        = string
 }
 
-variable "volumes_type" {
-  description = "The type of all the disk instances in my project"
-  default     = "gp2"
+########ANSIBLE################
+variable "ansible_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
 }
 
-variable "owner_tag" {
-  description = "The owner tag will be applied to every resource in the project through the 'default variables' feature"
-  default     = "Ops-School"
+variable "ansible_instance_type" {
+  description = "The type of the ec2"
+  default     = "t2.micro"
   type        = string
 }
 
-variable "purpose_tag" {
-  default = "Whiskey"
-  type    = string
-}
-
-variable "kubernetes_version" {
-  default = 1.24
-  description = "kubernetes version"
-}
-
-
-locals {
-  k8s_service_account_namespace = "default"
-  k8s_service_account_name      = "opsschool-sa"
-  # cluster_name = "kandula-opsschool-cluster"
-}
+#######Creation of cluster name EKS##########
 
 locals {
   cluster_name = "opsschool-eks-hadar-${random_string.suffix.result}"

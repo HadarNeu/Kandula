@@ -1,104 +1,18 @@
-# provider "aws" {
-#   version = "~> 2.0"
-#   region = "us-east-1"
-# }
 
-# locals {
-#   jenkins_default_name = "jenkins"
-#   jenkins_home = "/home/ubuntu/jenkins_home"
-#   jenkins_home_mount = "${local.jenkins_home}:/var/jenkins_home"
-#   docker_sock_mount = "/var/run/docker.sock:/var/run/docker.sock"
-#   java_opts = "JAVA_OPTS='-Djenkins.install.runSetupWizard=false'"
-# }
+resource "aws_instance" "jenkins_server" {
+  count= var.jenkins_instances_count
+  ami = data.aws_ami.jenkins-server-ami.id
+  instance_type = var.jenkins-instance-type
+  key_name = var.key_name
+  subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
+  associate_public_ip_address = true
+  vpc_security_group_ids      = [aws_security_group.jenkins-servers-sg.id]
+  user_data            = file("${path.module}/scripts/consul-agent-jenkins.sh")
+  iam_instance_profile   = aws_iam_instance_profile.jenkins-server.name
 
-# resource "aws_security_group" "jenkins" {
-#   name = local.jenkins_default_name
-#   description = "Allow Jenkins inbound traffic"
+  tags = {
+    Name = "jenkins-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${module.kandula-vpc.vpc_name}"
+    consul_server = "true"
+  }
 
-#   ingress {
-#     from_port = 443
-#     to_port = 443
-#     protocol = "tcp"
-#     cidr_blocks = [
-#       "0.0.0.0/0"
-#     ]
-#   }
-
-#   ingress {
-#     from_port = 8080
-#     to_port = 8080
-#     protocol = "tcp"
-#     cidr_blocks = [
-#       "0.0.0.0/0"
-#     ]
-#   }
-
-#   ingress {
-#     from_port = 22
-#     to_port = 22
-#     protocol = "tcp"
-#     cidr_blocks = [
-#       "0.0.0.0/0"
-#     ]
-#   }
-
-#   egress {
-#     description = "Allow all outgoing traffic"
-#     from_port = 0
-#     to_port = 0
-#     // -1 means all
-#     protocol = "-1"
-#     cidr_blocks = [
-#       "0.0.0.0/0"
-#     ]
-#   }
-
-#   tags = {
-#     Name = local.jenkins_default_name
-#   }
-# }
-
-# # resource "aws_key_pair" "jenkins_ec2_key" {
-# #   key_name = "jenkins_ec2_key"
-# #   public_key = file("jenkins_ec2_key.pub")
-# # }
-
-# resource "aws_instance" "jenkins_server" {
-#   ami = "ami-07d0cf3af28718ef8"
-#   instance_type = "t3.micro"
-#   key_name = "jenkins_kandula"
-#   subnet_id                   = module.kandula-vpc.public_subnets_id[count.index]
-#   associate_public_ip_address = true
-#   vpc_security_group_ids      = [aws_security_group.nginx_instances_access.id]
-#   tags = {
-#     Name = "Jenkins Server"
-#   }
-
-#   security_groups = [
-#     "default",
-#     aws_security_group.jenkins.name
-#   ]
-
-#   connection {
-#     host = aws_instance.jenkins_server.public_ip
-#     user = "ubuntu"
-#     private_key = file("jenkins_kandula.pem")
-#   }
-
-#   provisioner "remote-exec" {
-#     inline = [
-#       "sudo apt-get update -y",
-#       "sudo apt install docker.io -y",
-#       "sudo systemctl start docker",
-#       "sudo systemctl enable docker",
-#       "sudo usermod -aG docker ubuntu",
-#       "mkdir -p ${local.jenkins_home}",
-#       "sudo chown -R 1000:1000 ${local.jenkins_home}"
-#     ]
-#   }
-#   provisioner "remote-exec" {
-#     inline = [
-#       "sudo docker run -d --restart=always -p 8080:8080 -p 50000:50000 -v ${local.jenkins_home_mount} -v ${local.docker_sock_mount} --env ${local.java_opts} jenkins/jenkins"
-#     ]
-#   }
-# }
+}

@@ -1,6 +1,25 @@
+##########Consul ALB ##############
+
+# Creating the Application Load Balancer
+resource "aws_lb" "consul_alb" {
+  name               = "consul-alb-kandula"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_sg.id]
+
+  subnets = [
+    module.kandula-vpc.public_subnets_id[0],
+    module.kandula-vpc.public_subnets_id[1]
+
+  ]
+  tags = {
+    "Name" = "consul-alb-${module.kandula-vpc.vpc_name}"
+  }
+}
+
 # Creating Target Group for public access
-resource "aws_lb_target_group" "app_tg" {
-  name       = "app-tg"
+resource "aws_lb_target_group" "consul_tg" {
+  name       = "consul-tg-kandula"
   port       = 80
   protocol   = "HTTP"
   vpc_id     = module.kandula-vpc.vpc_id
@@ -8,10 +27,85 @@ resource "aws_lb_target_group" "app_tg" {
 
   load_balancing_algorithm_type = "round_robin"
 
-  stickiness {
-    enabled = false
-    type    = "lb_cookie"
+  health_check {
+    enabled             = true
+    port                = 80
+    interval            = 30
+    protocol            = "HTTP"
+    path                = "/ui/"
+    matcher             = "200"
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
   }
+
+  tags = {
+    "Name" = "consul-tg-${module.kandula-vpc.vpc_name}"
+  }
+}
+
+# Attechement of target group to consul servers
+resource "aws_lb_target_group_attachment" "consul_tg_attachment_1" {
+  count = var.counsul_servers_count_subnet1
+
+  target_group_arn = aws_lb_target_group.consul_tg.arn
+  target_id        = aws_instance.consul_server_subnet1[count.index].id
+  port             = 8500
+}
+
+# Attechement of target group to consul servers
+resource "aws_lb_target_group_attachment" "consul_tg_attachment_2" {
+  count = var.counsul_servers_count_subnet2
+
+  target_group_arn = aws_lb_target_group.consul_tg.arn
+  target_id        = aws_instance.consul_server_subnet2[count.index].id
+  port             = 8500
+}
+
+
+# A listener to recieve incoming traffic
+resource "aws_lb_listener" "consul_lb_listener" {
+  load_balancer_arn = aws_lb.consul_alb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.consul_tg.arn
+  }
+
+  tags = {
+    "Name" = "consul_alb-listener-${module.kandula-vpc.vpc_name}"
+  }
+}
+
+##########Jenkins ALB ##############
+
+# Creating the Application Load Balancer
+resource "aws_lb" "jenkins_alb" {
+  name               = "jenkins-alb-kandula"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.alb_sg.id]
+
+  subnets = [
+    module.kandula-vpc.public_subnets_id[0],
+    module.kandula-vpc.public_subnets_id[1]
+
+  ]
+  tags = {
+    "Name" = "jenkins-alb-${module.kandula-vpc.vpc_name}"
+  }
+}
+
+# Creating Target Group for public access
+resource "aws_lb_target_group" "jenkins_tg" {
+  name       = "jenkins-tg-kandula"
+  port       = 80
+  protocol   = "HTTP"
+  vpc_id     = module.kandula-vpc.vpc_id
+  slow_start = 0
+
+  load_balancing_algorithm_type = "round_robin"
 
   health_check {
     enabled             = true
@@ -23,72 +117,36 @@ resource "aws_lb_target_group" "app_tg" {
     healthy_threshold   = 3
     unhealthy_threshold = 3
   }
+  tags = {
+    "Name" = "jenkins-tg-${module.kandula-vpc.vpc_name}"
+  }
 }
 
-# Attechement of target group to webservers
-resource "aws_lb_target_group_attachment" "app_tg" {
-  count = var.nginx_instances_count
+# Attechement of target group to jenkins servers
+resource "aws_lb_target_group_attachment" "jenkins_tg_attachment" {
+  count = var.jenkins_instances_count
 
-  target_group_arn = aws_lb_target_group.app_tg.arn
-  target_id        = aws_instance.nginx[count.index].id
-  port             = 80
+  target_group_arn = aws_lb_target_group.jenkins_tg.arn
+  target_id        = aws_instance.jenkins_server[count.index].id
+  port             = 8080
 }
 
-# Creating the actual Application Load Balancer
-resource "aws_lb" "app_alb" {
-  name               = "AppAlb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg.id]
-
-  subnets = [
-    module.kandula-vpc.public_subnets_id[0],
-    module.kandula-vpc.public_subnets_id[1]
-
-  ]
-}
 
 # A listener to recieve incoming traffic
-resource "aws_lb_listener" "app_listener" {
-  load_balancer_arn = aws_lb.app_alb.arn
+resource "aws_lb_listener" "jenkins_lb_listener" {
+  load_balancer_arn = aws_lb.jenkins_alb.arn
   port              = "80"
   protocol          = "HTTP"
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.app_tg.arn
+    target_group_arn = aws_lb_target_group.jenkins_tg.arn
+  }
+
+  tags = {
+    "Name" = "jenkins-alb-listener-${module.kandula-vpc.vpc_name}"
   }
 }
 
-resource "aws_security_group" "alb_sg" {
-   name        = "alb_sg"
-   vpc_id      = "${module.kandula-vpc.vpc_id}"
-
-   # HTTP access - Traffic from internet
-   ingress {
-       from_port   = 80
-       to_port     = 80
-       protocol    = "tcp"
-       # Restrict ingress to necessary IPs/ports.
-       cidr_blocks = ["0.0.0.0/0"]
-   }
-
-  
-  egress {
-      from_port   = 0
-      to_port     = 0
-      protocol    = "-1"
-      cidr_blocks = ["0.0.0.0/0"]
-  }
-  
-
-   tags = {
-       Name = "alb_sg"
-   }
-}
 
 
-output "alb_dns" {
-  description = "The DNS of the load balancer we created"
-  value = aws_lb.app_alb.dns_name
-}
