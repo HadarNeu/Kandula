@@ -44,7 +44,7 @@ variable "jenkins-ui-url" {
 ########JENKINS################
 variable "jenkins-ami-name" {
   description = "The name of the pre-configured Jenkins ami"
-  default = "jenkins-server-ami-hadarnoy-kandula-1.1"
+  default = "	jenkins-ami-kandula-1.2"
   type = string
 }
 
