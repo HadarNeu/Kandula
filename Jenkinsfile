@@ -11,7 +11,7 @@
 
         stage('Cloning Git') {
             steps {
-                git url: "${REPO_URL}", branch: 'main',
+                git url: "${REPO_URL}", branch: 'local-ubuntu',
                  credentialsId: 'git-token-hadarneu'
             }
         }
@@ -63,7 +63,7 @@
 	        stage ("Display app link") {
                 steps {
 					withAWS(credentials:'aws-creds-hadarnoy') {
-						sh "kubectl describe svc kandula-app-lb-service | grep 'LoadBalancer Ingress:'"
+						sh "kubectl describe svc kandula-app-lb-service | grep 'LoadBalancer'"
 					}
                 }
             }

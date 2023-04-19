@@ -49,3 +49,9 @@ output "jenkins-ui-url" {
   description = "The A record used for jenkins UI"
   value = var.jenkins-ui-url
 }
+
+output "jenkins-sg" {
+  description = "The sg of jenkins-for cloud configuration"
+  value = aws_security_group.jenkins-servers-sg.id
+}
+

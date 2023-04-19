@@ -73,48 +73,26 @@ class InstanceData:
             for data in instance['Instances']:
                 instances_data.append(data)
         for instance in instances_data:
-            if instance.get('PublicIPAddress', None) != None and instance.get('PublicDnsAddress', None) != None:   
-                try:
-                    instance_data_dict = {'Cloud': 'aws', 'Region': self.ec2_client.meta.region_name,
-                                            'Id': instance['InstanceId'], 'Type': instance['InstanceType'],
-                                            'ImageId': instance['ImageId'], 'LaunchTime': instance['LaunchTime'],
-                                            'State': instance['State']['Name'],
-                                            'StateReason': get_state_reason(instance),
-                                            'SubnetId': instance.get('SubnetId', None), 'VpcId': instance['VpcId'],
-                                            'MacAddress': instance['NetworkInterfaces'][0]['MacAddress'],
-                                            'NetworkInterfaceId': instance['NetworkInterfaces'][0]['NetworkInterfaceId'],
-                                            'PrivateDnsName': instance['PrivateDnsName'],
-                                            'PublicDnsName': instance['PublicDnsName'],
-                                            'PrivateIpAddress': instance['PrivateIpAddress'],
-                                            'PublicDnsName': instance['PublicDnsName'],
-                                            'PublicIPAddress': instance['PublicIpAddress'],
-                                            'RootDeviceName': instance['RootDeviceName'],
-                                            'RootDeviceType': instance['RootDeviceType'],
-                                            'SecurityGroups': instance['SecurityGroups'], 'Tags': instance['Tags']}
-                    
-                    instance_data_dict_list.append(instance_data_dict)
-                except Exception:
-                    log_object.info("FAILURE in parsing ec2 data:")
-            else:
-                try:
-                    instance_data_dict = {'Cloud': 'aws', 'Region': self.ec2_client.meta.region_name,
-                                            'Id': instance['InstanceId'], 'Type': instance['InstanceType'],
-                                            'ImageId': instance['ImageId'], 'LaunchTime': instance['LaunchTime'],
-                                            'State': instance['State']['Name'],
-                                            'StateReason': get_state_reason(instance),
-                                            'SubnetId': instance.get('SubnetId', None), 'VpcId': instance['VpcId'],
-                                            'MacAddress': instance['NetworkInterfaces'][0]['MacAddress'],
-                                            'NetworkInterfaceId': instance['NetworkInterfaces'][0]['NetworkInterfaceId'],
-                                            'PrivateDnsName': instance['PrivateDnsName'],
-                                            # 'PublicDnsName': instance['PublicDnsName'],
-                                            'PrivateIpAddress': instance['PrivateIpAddress'],
-                                            # 'PublicIPAddress': instance['PublicIpAddress'],
-                                            'PublicDnsName': instance['PublicDnsName'],
-                                            'RootDeviceName': instance['RootDeviceName'],
-                                            'RootDeviceType': instance['RootDeviceType'],
-                                            'SecurityGroups': instance['SecurityGroups'], 'Tags': instance['Tags']}
-                    instance_data_dict_list.append(instance_data_dict)
-                except Exception:
+            try:
+                instance_data_dict = {'Cloud': 'aws', 'Region': self.ec2_client.meta.region_name,
+                                        'Id': instance.get('InstanceId', None), 'Type': instance.get('InstanceType', None),
+                                        'ImageId': instance.get('ImageId', None), 'LaunchTime': instance.get('LaunchTime', None),
+                                        'State': instance['State']['Name'],
+                                        'StateReason': get_state_reason(instance),
+                                        'SubnetId': instance.get('SubnetId', None), 'VpcId': instance['VpcId'],
+                                        'MacAddress': instance['NetworkInterfaces'][0]['MacAddress'],
+                                        'NetworkInterfaceId': instance['NetworkInterfaces'][0]['NetworkInterfaceId'],
+                                        'PrivateDnsName': instance['PrivateDnsName'],
+                                        'PublicDnsName': instance['PublicDnsName'],
+                                        'PrivateIpAddress': instance['PrivateIpAddress'],
+                                        'PublicDnsName': instance.get('PublicDnsName', None),
+                                        'PublicIPAddress': instance.get('PublicIpAddress', None),
+                                        'RootDeviceName': instance['RootDeviceName'],
+                                        'RootDeviceType': instance['RootDeviceType'],
+                                        'SecurityGroups': instance['SecurityGroups'], 'Tags': instance['Tags']}
+                
+                instance_data_dict_list.append(instance_data_dict)
+            except Exception:
                     log_object.info("FAILURE in parsing ec2 data:")
         instances_dict['Instances'] = instance_data_dict_list
         return instances_dict
