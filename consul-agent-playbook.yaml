@@ -1,0 +1,152 @@
+---
+
+- hosts: tag_consul_agent_true
+  become: true
+  vars:
+    consul_version: "1.15.2"
+    ansible_ssh_private_key_file: "/home/ubuntu/.ssh/opsschool_consul_key.pem"
+
+  tasks:
+    - name: Add universe repository
+      apt_repository:
+        repo: 'deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe'
+        state: present
+        update_cache: yes
+      when: ansible_distribution == 'Ubuntu' or ansible_distribution == 'Debian'
+
+    - name: Install dependencies on Debian-based systems
+      apt:
+        name:
+          - net-tools
+          - unzip
+          - dnsmasq
+        update_cache: yes
+      when: "ansible_os_family == 'Debian'"
+    
+    - name: Install dependencies on Red Hat-based systems
+      yum:
+        name:
+          - net-tools
+          - unzip
+          - dnsmasq
+        state: present
+      when: "ansible_os_family == 'RedHat'"
+
+    - name: Configure dnsmasq
+      copy:
+        dest: "/etc/dnsmasq.d/10-consul"
+        content: |
+          # Enable forward lookup of the 'consul' domain:
+          server=/consul/127.0.0.1#5353
+          port=5353
+
+    - name: Restart dnsmasq service
+      service:
+        name: dnsmasq
+        state: restarted
+
+    - name: Configure systemd-resolved
+      copy:
+        dest: "/etc/systemd/resolved.conf"
+        content: |
+          [Resolve]
+          DNS=127.0.0.1
+          Domains=~consul
+
+    - name: Restart systemd-resolved service
+      service:
+        name: systemd-resolved
+        state: restarted
+
+    - name: Fetch Consul
+      get_url:
+        url: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_linux_amd64.zip"
+        dest: "/tmp/consul.zip"
+
+    - name: Install Consul
+      unarchive:
+        src: "/tmp/consul.zip"
+        dest: "/usr/local/bin"
+        remote_src: yes
+        mode: "0755"
+        creates: "/usr/local/bin/consul"
+
+    - name: add group consul
+      ansible.builtin.group:
+        name: consul
+        state: present
+
+    - name: add consul user
+      ansible.builtin.user:
+        name: consul
+        group: consul
+
+    - name: Create Consul user and directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: consul
+        group: consul
+
+      loop:
+        - "/opt/consul"
+        - "/etc/consul.d"
+        - "/run/consul"
+
+    - name: Configure Consul
+      copy:
+        dest: "/etc/consul.d/config.json"
+        content: |
+          {
+            "advertise_addr": "{{ ansible_default_ipv4.address }}",
+            "data_dir": "/opt/consul",
+            "datacenter": "kandula-hadar",
+            "encrypt": "uDBV4e+LbFW3019YKPxIrg==",
+            "disable_remote_exec": true,
+            "disable_update_check": true,
+            "leave_on_terminate": true,
+            "retry_join": ["provider=aws region=us-east-1 tag_key=consul-server tag_value=true"],
+            "enable_script_checks": true,
+            "server": false,
+            node_name = "webserver-$INSTANCE_ID"
+            check = {
+              id = "http-service"
+              name = "HTTP TCP on port 80"
+              tcp = "localhost:80"
+              interval = "10s"
+              timeout = "1s"
+            }
+          }
+
+    - name: Configure Consul service
+      copy:
+        dest: "/etc/systemd/system/consul.service"
+        content: |
+          [Unit]
+          Description=Consul service discovery agent
+          Requires=network-online.target
+          After=network.target
+
+          [Service]
+          User=consul
+          Group=consul
+          PIDFile=/run/consul/consul.pid
+          Restart=on-failure
+          Environment=GOMAXPROCS=2
+          ExecStart=/usr/local/bin/consul agent -pid-file=/run/consul/consul.pid -config-dir=/etc/consul.d
+          ExecReload=/bin/kill -s HUP $MAINPID
+          KillSignal=SIGINT
+          TimeoutStopSec=5
+
+          [Install]
+          WantedBy=multi-user.target
+
+    - name: Reload systemd configuration
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start consul service
+      systemd:
+        name: consul.service
+        enabled: yes
+        state: started
