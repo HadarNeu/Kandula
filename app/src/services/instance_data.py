@@ -95,6 +95,7 @@ class InstanceData:
             except Exception:
                     log_object.info("FAILURE in parsing ec2 data:")
         instances_dict['Instances'] = instance_data_dict_list
+        print(instances_dict)
         return instances_dict
 
 ec2_client = boto3.client('ec2')
