@@ -10,7 +10,8 @@ for i in rules rules.d files_sd; do sudo mkdir -p /etc/prometheus/${i}; done
 sudo apt install curl
 mkdir -p /tmp/prometheus
 wget https://github.com/prometheus/prometheus/releases/download/v2.44.0/prometheus-2.44.0.linux-amd64.tar.gz
-tar xvf prometheus*.tar.gz
+sudo mv prometheus*.tar.gz /tmp/prometheus
+tar xvf prometheus*.tar.gz /tmp/prometheus
 cd /tmp/prometheus/prometheus-2.44.0.linux-amd64
 sudo mv prometheus promtool /usr/local/bin/
 sudo mv prometheus.yml /etc/prometheus/prometheus.yml
