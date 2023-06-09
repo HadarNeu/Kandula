@@ -1,11 +1,9 @@
 # filebeat
-wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-7.11.0-amd64.deb
-dpkg -i filebeat-*.deb
+curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.8.1-linux-x86_64.tar.gz
+tar xzvf filebeat-8.8.1-linux-x86_64.tar.gz
 
-
-sudo mv /etc/filebeat/filebeat.yml /etc/filebeat/filebeat.yml.BCK
-
-cat <<\EOF > /etc/filebeat/filebeat.yml
+: '
+sudo cat <<\EOF > /etc/filebeat/filebeat.yml
 filebeat.inputs:
   - type: log
     enabled: false
@@ -42,5 +40,5 @@ output.elasticsearch:
 #output.logstash:
 #  hosts: [ "127.0.0.1:5044" ]
 EOF
-
+'
 echo "INFO: userdata finished"
