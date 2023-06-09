@@ -72,7 +72,7 @@ echo "Creating /etc/consul.d/consul.hcl ..."
 tee /etc/consul.d/consul.hcl > /dev/null <<EOF
 advertise_addr = "$INSTANCE_IP"
 data_dir = "/opt/consul"
-datacenter = "dc-hadar"
+datacenter = "dc-hadar-kandula"
 encrypt = "uDBV4e+LbFW3019YKPxIrg=="
 disable_remote_exec = true
 disable_update_check = true
