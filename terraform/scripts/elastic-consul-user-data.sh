@@ -1,5 +1,7 @@
 # elasticsearch
-wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.10.2-amd64.deb
-dpkg -i elasticsearch-*.deb
-systemctl enable elasticsearch
-systemctl start elasticsearch
+curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt update
+sudo apt -y install elasticsearch
+sudo systemctl start elasticsearch
+sudo systemctl enable elasticsearch
