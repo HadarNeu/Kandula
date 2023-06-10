@@ -1,3 +1,9 @@
+#########REQUIRED############
+variable "rds_password" {
+  description = "The admin password for the rds, required - SECRET"
+  default     = null
+  type        = string
+}
 ########GENERAL################
 variable "aws_region" {
   default = "us-west-2"
@@ -41,11 +47,8 @@ variable "key_destination" {
   type        = string
 }
 
-variable "jenkins-ui-url" {
-  description = "The A record used for jenkins UI"
-  default     = "hadar.infitest.net"
-  type        = string
-}
+
+
 
 
 ########JENKINS################
@@ -64,6 +67,12 @@ variable "jenkins-instance-type" {
 variable "jenkins_instances_count" {
   description = "The number of bastion instances to create"
   default     = 1
+}
+
+variable "jenkins-ui-url" {
+  description = "The A record used for jenkins UI"
+  default     = "hadar.infitest.net"
+  type        = string
 }
 
 ########BASTION################
