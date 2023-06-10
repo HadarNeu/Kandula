@@ -11,8 +11,13 @@ resource "aws_instance" "jenkins_server" {
   iam_instance_profile   = aws_iam_instance_profile.jenkins-server.name
 
   tags = {
-    Name = "jenkins-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${module.kandula-vpc.vpc_name}"
-    consul_server = "true"
+    Name = "jenkins-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "ec2"
+    "service" = "jenkins"
+    "consul" = "true"
   }
 
 }
@@ -23,7 +28,11 @@ resource "aws_security_group" "jenkins-servers-sg" {
   name   = "jenkins-servers-sg"
 
   tags = {
-    "Name" = "jenkins-servers-sg-${module.kandula-vpc.vpc_name}"
+    "Name" = "sg-jenkins-servers-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "sg"
   }
 }
 
