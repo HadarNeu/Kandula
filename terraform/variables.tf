@@ -118,3 +118,16 @@ resource "random_string" "suffix" {
   length  = 8
   special = false
 }
+
+########ELASTIC################
+variable "elastic_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
+}
+
+variable "elastic_instance_type" {
+  description = "The type of the ec2"
+  default     = "t3.large"
+  type        = string
+}
+
