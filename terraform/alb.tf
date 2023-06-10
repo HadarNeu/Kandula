@@ -185,6 +185,10 @@ resource "aws_security_group" "alb_sg" {
 
   tags = {
     "Name" = "sg-alb-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "sg"
   }
 }
 resource "aws_security_group_rule" "alb_http_access" {

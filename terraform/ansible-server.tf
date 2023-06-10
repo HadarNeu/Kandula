@@ -17,7 +17,7 @@ resource "aws_instance" "ansible_server" {
     "env" = "prd"
     "resource" = "ec2"
     "service" = "ansible"
-    
+    "consul" = "true"
   }
 }
 
@@ -27,10 +27,14 @@ resource "aws_instance" "ansible_server" {
 
 resource "aws_security_group" "ansible_sg" {
   vpc_id = module.kandula-vpc.vpc_id
-  name   = "ansible-sg-kandula"
+  name   = "sg-ansible-kandula"
 
   tags = {
-    "Name" = "ansible-sg-${module.kandula-vpc.vpc_name}"
+    "Name" = "sg-ansible-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "sg"
   }
 }
 
