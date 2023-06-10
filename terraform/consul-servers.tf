@@ -10,8 +10,13 @@ resource "aws_instance" "consul_server_subnet1" {
   user_data            = file("${path.module}/scripts/consul-server-user-data.sh")
 
   tags = {
-    Name = "consul-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${module.kandula-vpc.vpc_name}"
-    consul_server = "true"
+    Name = "consul-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    consul = "true"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "ec2"
+    "service" = "consul-server"
   }
 
 }
@@ -28,8 +33,13 @@ resource "aws_instance" "consul_server_subnet2" {
   user_data            = file("${path.module}/scripts/consul-server-user-data.sh")
 
   tags = {
-    Name = "consul-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${module.kandula-vpc.vpc_name}"
-    consul_server = "true"
+    Name = "consul-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    consul = "true"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "ec2"
+    "service" = "consul-server"
   }
 }
 
@@ -40,7 +50,11 @@ resource "aws_security_group" "consul-servers-sg" {
   name   = "consul-servers-sg"
 
   tags = {
-    "Name" = "consul-servers-sg-${module.kandula-vpc.vpc_name}"
+    "Name" = "sg-consul-servers-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "sg"
   }
 }
 
