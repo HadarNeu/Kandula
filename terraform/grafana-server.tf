@@ -6,7 +6,7 @@ resource "aws_instance" "grafana_server" {
   key_name = var.key_name
   subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
   associate_public_ip_address = false
-  vpc_security_group_ids      = [aws_security_group.aws_security_group.grafana-server-sg.id]
+  vpc_security_group_ids      = [aws_security_group.grafana-server-sg.id]
   user_data            = file("${path.module}/scripts/grafana-consul-user-data.sh")
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
 
