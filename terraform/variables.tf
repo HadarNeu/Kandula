@@ -167,5 +167,16 @@ variable "grafana_instance_type" {
   type        = string
 }
 
+########PROMETHEUS################
+variable "prometheus_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
+}
+
+variable "prometheus_instance_type" {
+  description = "The type of the ec2"
+  default     = "t3.medium"
+  type        = string
+}
 
 
