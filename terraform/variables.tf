@@ -5,7 +5,7 @@ variable "aws_region" {
 }
 
 variable "project_name" {
-  description = "The key name of the Key Pair to use for the instance"
+  description = "The key name of the project"
   default     = "kandula"
   type        = string
 }

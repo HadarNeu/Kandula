@@ -11,7 +11,13 @@ resource "aws_instance" "ansible_server" {
   user_data = file("${path.module}/scripts/ansible-consul-user-data.sh")
 
   tags = {
-    "Name" = "ansible-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${module.kandula-vpc.vpc_name}"
+    "Name" = "ansible-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "ec2"
+    "service" = "ansible"
+    
   }
 }
 

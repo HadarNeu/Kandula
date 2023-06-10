@@ -4,6 +4,12 @@ variable "cluster_name" {
   default = null
 }
 
+variable "project_name" {
+  description = "The key name of the project"
+  default     = null 
+  type        = string
+}
+
 variable "vpc_cidr_block" {
   type = string
   description = "The cidr block of the VPC"

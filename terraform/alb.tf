@@ -1,8 +1,8 @@
 ##########Consul ALB ##############
 
-# Creating the Application Load Balancer
+# Creating the Application Load Balancer for Consul
 resource "aws_lb" "consul_alb" {
-  name               = "consul-alb-kandula"
+  name               = "alb-consul-kandula"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
@@ -13,7 +13,11 @@ resource "aws_lb" "consul_alb" {
 
   ]
   tags = {
-    "Name" = "consul-alb-${module.kandula-vpc.vpc_name}"
+    "Name" = "alb-consul-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "alb"
   }
 }
 
@@ -39,7 +43,11 @@ resource "aws_lb_target_group" "consul_tg" {
   }
 
   tags = {
-    "Name" = "consul-tg-${module.kandula-vpc.vpc_name}"
+    "Name" = "tg-consul-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "tg"
   }
 }
 
@@ -74,7 +82,12 @@ resource "aws_lb_listener" "consul_lb_listener" {
   }
 
   tags = {
-    "Name" = "consul_alb-listener-${module.kandula-vpc.vpc_name}"
+    "Name" = "alb-listener-consul-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "listener"
+    "port" = "80"
   }
 }
 
@@ -93,7 +106,11 @@ resource "aws_lb" "jenkins_alb" {
 
   ]
   tags = {
-    "Name" = "jenkins-alb-${module.kandula-vpc.vpc_name}"
+    "Name" = "alb-jenkins-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "alb"
   }
 }
 
@@ -118,7 +135,11 @@ resource "aws_lb_target_group" "jenkins_tg" {
     unhealthy_threshold = 3
   }
   tags = {
-    "Name" = "jenkins-tg-${module.kandula-vpc.vpc_name}"
+    "Name" = "tg-jenkins-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "tg"
   }
 }
 
@@ -144,7 +165,12 @@ resource "aws_lb_listener" "jenkins_lb_listener" {
   }
 
   tags = {
-    "Name" = "jenkins-alb-listener-${module.kandula-vpc.vpc_name}"
+    "Name" = "alb-listener-jenkins-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "listener"
+    "port" = "80"
   }
 }
 
@@ -155,10 +181,10 @@ resource "aws_lb_listener" "jenkins_lb_listener" {
 
 resource "aws_security_group" "alb_sg" {
   vpc_id = module.kandula-vpc.vpc_id
-  name   = "alb-sg-kandula"
+  name   = "sg-alb-kandula"
 
   tags = {
-    "Name" = "alb-sg-${module.kandula-vpc.vpc_name}"
+    "Name" = "sg-alb-${var.project_name}"
   }
 }
 resource "aws_security_group_rule" "alb_http_access" {

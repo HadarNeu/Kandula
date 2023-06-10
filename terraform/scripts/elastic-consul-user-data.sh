@@ -79,7 +79,7 @@ disable_update_check = true
 leave_on_terminate = true
 enable_syslog = true
 log_level = "info"
-retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul_server tag_value=true"]
+retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_value=true"]
 server = false
 node_name = "elastic-$INSTANCE_ID-kandula"
 check = {
