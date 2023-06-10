@@ -1,6 +1,6 @@
 resource "aws_db_instance" "postgres" {
   engine               = "postgres"
-  engine_version       = "13.4"
+  engine_version       = "13"
   instance_class       = "db.t2.micro"
   allocated_storage    = 20
   storage_type         = "gp2"
@@ -44,7 +44,7 @@ resource "aws_db_subnet_group" "subnet_group" {
 resource "aws_db_parameter_group" "parameter_group" {
   name        = "parameter-group-postgres-kandula"
   family      = "postgres13"
-  description = "postgres 13.4 DB Parameter Group - kandula"
+  description = "postgres 13 DB Parameter Group - kandula"
 
   tags = {
     Name = "parameter-group-postgres-kandula"
@@ -59,7 +59,7 @@ resource "aws_db_parameter_group" "parameter_group" {
 resource "aws_db_option_group" "option_group" {
   name        = "option-group-postgres-kandula"
   engine_name = "postgres"
-  major_engine_version = "13.00"
+  major_engine_version = "13"
 
   tags = {
     Name = "option-group-postgres-kandula"
