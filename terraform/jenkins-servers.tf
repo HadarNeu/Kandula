@@ -25,10 +25,10 @@ resource "aws_instance" "jenkins_server" {
 ######Jenkins SG############
 resource "aws_security_group" "jenkins-servers-sg" {
   vpc_id = module.kandula-vpc.vpc_id
-  name   = "jenkins-servers-sg"
+  name   = "jenkins-servers-sg-kandula"
 
   tags = {
-    "Name" = "sg-jenkins-servers-${var.project_name}"
+    "Name" = "jenkins-servers-sg-${var.project_name}"
     "project" = "kandula"
     "owner" = "hadar"
     "env" = "prd"

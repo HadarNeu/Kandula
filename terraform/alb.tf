@@ -181,10 +181,10 @@ resource "aws_lb_listener" "jenkins_lb_listener" {
 
 resource "aws_security_group" "alb_sg" {
   vpc_id = module.kandula-vpc.vpc_id
-  name   = "sg-alb-kandula"
+  name   = "alb-sg-kandula"
 
   tags = {
-    "Name" = "sg-alb-${var.project_name}"
+    "Name" = "alb-sg-${var.project_name}"
     "project" = "kandula"
     "owner" = "hadar"
     "env" = "prd"

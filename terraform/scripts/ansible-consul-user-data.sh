@@ -1,4 +1,4 @@
-cd ..#!/usr/bin/env bash
+#!/usr/bin/env bash
 export AWS_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
 export AWS_AZ=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
 export INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)

@@ -47,10 +47,10 @@ resource "aws_instance" "consul_server_subnet2" {
 #########Consul Server SG###########
 resource "aws_security_group" "consul-servers-sg" {
   vpc_id = module.kandula-vpc.vpc_id
-  name   = "consul-servers-sg"
+  name   = "consul-servers-sg-kandula"
 
   tags = {
-    "Name" = "sg-consul-servers-${var.project_name}"
+    "Name" = "consul-servers-sg-${var.project_name}"
     "project" = "kandula"
     "owner" = "hadar"
     "env" = "prd"

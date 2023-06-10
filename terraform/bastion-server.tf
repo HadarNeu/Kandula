@@ -42,10 +42,10 @@ resource "aws_instance" "bastion" {
 
 resource "aws_security_group" "bastion_sg" {
   vpc_id = module.kandula-vpc.vpc_id
-  name   = "sg-bastion-kandula"
+  name   = "bastion-sg-kandula"
 
   tags = {
-    "Name" = "sg-bastion-${var.project_name}"
+    "Name" = "bastion-sg-${var.project_name}"
     "project" = "kandula"
     "owner" = "hadar"
     "env" = "prd"

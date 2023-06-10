@@ -27,10 +27,10 @@ resource "aws_instance" "ansible_server" {
 
 resource "aws_security_group" "ansible_sg" {
   vpc_id = module.kandula-vpc.vpc_id
-  name   = "sg-ansible-kandula"
+  name   = "ansible-sg-kandula"
 
   tags = {
-    "Name" = "sg-ansible-${var.project_name}"
+    "Name" = "ansible-sg-${var.project_name}"
     "project" = "kandula"
     "owner" = "hadar"
     "env" = "prd"
