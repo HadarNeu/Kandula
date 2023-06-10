@@ -26,7 +26,13 @@ resource "aws_instance" "bastion" {
       ]
     }
   tags = {
-    "Name" = "bastion-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${module.kandula-vpc.vpc_name}"
+    "Name" = "bastion-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "ec2"
+    "service" = "bastion"
+    "consul" = "false"  
   }
 }
 
@@ -36,10 +42,14 @@ resource "aws_instance" "bastion" {
 
 resource "aws_security_group" "bastion_sg" {
   vpc_id = module.kandula-vpc.vpc_id
-  name   = "bastion-sg-kandula"
+  name   = "sg-bastion-kandula"
 
   tags = {
-    "Name" = "bastion-sg-${module.kandula-vpc.vpc_name}"
+    "Name" = "sg-bastion-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "sg"
   }
 }
 
