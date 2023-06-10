@@ -1,12 +1,12 @@
 resource "aws_db_instance" "postgres" {
   engine               = "postgres"
   engine_version       = "14.6"
-  instance_class       = "db.t2.micro"
+  instance_class       = "db.t3.micro"
   allocated_storage    = 20
   storage_type         = "gp2"
   identifier           = "rds-postgres-kandula"
-  db_name                 = "rds-kandula"
-  username             = "admin"
+  db_name              = "kandula"
+  username             = "postgres"
   password             = var.rds_password
   port                 = 5432
   publicly_accessible = false
