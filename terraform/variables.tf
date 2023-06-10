@@ -142,3 +142,15 @@ variable "fluentd_instance_type" {
   default     = "t3.medium"
   type        = string
 }
+
+########GRAFANA################
+variable "grafana_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
+}
+
+variable "grafana_instance_type" {
+  description = "The type of the ec2"
+  default     = "t3.medium"
+  type        = string
+}
