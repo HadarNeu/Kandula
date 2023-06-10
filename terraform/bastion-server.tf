@@ -29,3 +29,36 @@ resource "aws_instance" "bastion" {
     "Name" = "bastion-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${module.kandula-vpc.vpc_name}"
   }
 }
+
+
+
+############Bastion SG#################
+
+resource "aws_security_group" "bastion_sg" {
+  vpc_id = module.kandula-vpc.vpc_id
+  name   = "bastion-sg-kandula"
+
+  tags = {
+    "Name" = "bastion-sg-${module.kandula-vpc.vpc_name}"
+  }
+}
+
+resource "aws_security_group_rule" "bastion_ssh_access" {
+  description       = "allow ssh access from anywhere"
+  from_port         = 22
+  protocol          = "tcp"
+  security_group_id = aws_security_group.bastion_sg.id
+  to_port           = 22
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "bastion_outbound_anywhere" {
+  description       = "allow outbound traffic to anywhere"
+  from_port         = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.bastion_sg.id
+  to_port           = 0
+  type              = "egress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}

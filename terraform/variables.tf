@@ -4,6 +4,13 @@ variable "aws_region" {
   type    = string
 }
 
+variable "project_name" {
+  description = "The key name of the Key Pair to use for the instance"
+  default     = "kandula"
+  type        = string
+}
+
+
 variable "key_name" {
   description = "The key name of the Key Pair to use for the instance"
   default     = "jenkins-kandula"

@@ -32,3 +32,74 @@ resource "aws_instance" "consul_server_subnet2" {
     consul_server = "true"
   }
 }
+
+
+#########Consul Server SG###########
+resource "aws_security_group" "consul-servers-sg" {
+  vpc_id = module.kandula-vpc.vpc_id
+  name   = "consul-servers-sg"
+
+  tags = {
+    "Name" = "consul-servers-sg-${module.kandula-vpc.vpc_name}"
+  }
+}
+
+resource "aws_security_group_rule" "consul_ssh_acess" {
+  description       = "allow ssh access from anywhere"
+  from_port         = 22
+  protocol          = "tcp"
+  security_group_id = aws_security_group.consul-servers-sg.id
+  to_port           = 22
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "consul_servers_dns_acess" {
+  description       = "allow dns access from anywhere"
+  from_port         = 8600
+  protocol          = "tcp"
+  security_group_id = aws_security_group.consul-servers-sg.id
+  to_port           = 8600
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "consul_servers_http_api" {
+  description       = "allow http access from anywhere- consul API"
+  from_port         = 8500
+  protocol          = "tcp"
+  security_group_id = aws_security_group.consul-servers-sg.id
+  to_port           = 8500
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "consul_servers_rcp_access" {
+  description       = "allow rcp access from anywhere- allow requests from agents"
+  from_port         = 8300
+  protocol          = "tcp"
+  security_group_id = aws_security_group.consul-servers-sg.id
+  to_port           = 8300
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "consul_servers_serf_lan_access" {
+  description       = "allow serf LAN access from anywhere- used to handle gossip"
+  from_port         = 8301
+  protocol          = "tcp"
+  security_group_id = aws_security_group.consul-servers-sg.id
+  to_port           = 8301
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "consul_servers_outbound_anywhere" {
+  description       = "allow outbound traffic to anywhere"
+  from_port         = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.consul-servers-sg.id
+  to_port           = 0
+  type              = "egress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
