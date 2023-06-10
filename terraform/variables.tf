@@ -131,3 +131,14 @@ variable "elastic_instance_type" {
   type        = string
 }
 
+########FLUENTD################
+variable "fluentd_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
+}
+
+variable "fluentd_instance_type" {
+  description = "The type of the ec2"
+  default     = "t3.medium"
+  type        = string
+}
