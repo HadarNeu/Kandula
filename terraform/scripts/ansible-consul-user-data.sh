@@ -83,7 +83,7 @@ retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_va
 server = false
 node_name = "ansible-$INSTANCE_ID-kandula"
 check = {
-  id = "ssh"S
+  id = "ssh"
   name = "SSH TCP on port 22"
   tcp = "localhost:22"
   interval = "10s"
