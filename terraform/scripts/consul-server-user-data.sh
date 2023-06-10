@@ -83,7 +83,7 @@ retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul_server
 server = true
 bootstrap_expect = 3
 client_addr = "0.0.0.0"
-node_name = "kandula-server-$INSTANCE_ID"
+node_name = "consul-server-$INSTANCE_ID-kandula"
 ui_config {
   enabled = true
 }

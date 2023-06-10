@@ -8,10 +8,7 @@ resource "aws_instance" "ansible_server" {
   vpc_security_group_ids = [aws_security_group.ansible_sg.id]
   key_name               = var.key_name
 
-  user_data = <<EOF
-#! /bin/bash
-sudo apt update && sudo apt install ansible -y
-EOF
+  user_data = file("${path.module}/scripts/ansible-consul-user-data.sh")
 
   tags = {
     "Name" = "ansible-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${module.kandula-vpc.vpc_name}"

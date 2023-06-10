@@ -81,9 +81,9 @@ enable_syslog = true
 log_level = "info"
 retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul_server tag_value=true"]
 server = false
-node_name = "kandula-agent-$INSTANCE_ID"
+node_name = "ansible-$INSTANCE_ID-kandula"
 check = {
-  id = "ssh"
+  id = "ssh"S
   name = "SSH TCP on port 22"
   tcp = "localhost:22"
   interval = "10s"
@@ -98,3 +98,9 @@ sudo systemctl enable consul.service
 sudo systemctl restart consul.service
 echo "Restarting systemd-resolved service ..."
 systemctl restart systemd-resolved
+
+# ------------------------------------
+# Ansible Setup
+# ------------------------------------
+
+sudo apt update && sudo apt install ansible -y

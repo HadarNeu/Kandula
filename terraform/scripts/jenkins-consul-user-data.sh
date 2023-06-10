@@ -81,7 +81,7 @@ enable_syslog = true
 log_level = "info"
 retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul_server tag_value=true"]
 server = false
-node_name = "kandula-agent-jenkins-server-$INSTANCE_ID"
+node_name = "jenkins-$INSTANCE_ID-kandula"
 check = {
   id = "jenkins"
   name = "check health of jenkins service"
