@@ -11,7 +11,7 @@ resource "aws_instance" "kibana_server" {
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
 
   tags = {
-    Name = "elastic-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    Name = "kibana-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
     "project" = "kandula"
     "owner" = "hadar"
     "env" = "prd"
@@ -25,7 +25,7 @@ resource "aws_instance" "kibana_server" {
 ######Elastic SG############
 resource "aws_security_group" "kibana-server-sg" {
   vpc_id = module.kandula-vpc.vpc_id
-  name   = "elastic-server-sg-kandula"
+  name   = "kibana-server-sg-kandula"
 
   tags = {
     "Name" = "kibana-server-sg-${var.project_name}"

@@ -11,7 +11,7 @@ resource "aws_instance" "grafana_server" {
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
 
   tags = {
-    Name = "elastic-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    Name = "grafana-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
     "project" = "kandula"
     "owner" = "hadar"
     "env" = "prd"
@@ -25,7 +25,7 @@ resource "aws_instance" "grafana_server" {
 ######Elastic SG############
 resource "aws_security_group" "grafana-server-sg" {
   vpc_id = module.kandula-vpc.vpc_id
-  name   = "elastic-server-sg-kandula"
+  name   = "grafana-server-sg-kandula"
 
   tags = {
     "Name" = "grafana-server-sg-${var.project_name}"

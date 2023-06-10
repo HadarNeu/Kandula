@@ -59,7 +59,7 @@ resource "aws_db_parameter_group" "parameter_group" {
 resource "aws_db_option_group" "option_group" {
   name        = "option-group-postgres-kandula"
   engine_name = "postgres"
-  major_engine_version = "13.4"
+  major_engine_version = "13.00"
 
   tags = {
     Name = "option-group-postgres-kandula"
