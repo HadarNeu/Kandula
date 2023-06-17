@@ -74,7 +74,7 @@ variable "jenkins_instances_count" {
 
 variable "jenkins-ui-url" {
   description = "The A record used for jenkins UI"
-  default     = "hadar.infitest.net"
+  default     = "jenkins.hadar.infitest.net"
   type        = string
 }
 
@@ -105,6 +105,12 @@ variable "counsul_servers_count_subnet2" {
 variable "consul_instance_type" {
   description = "The type of the ec2"
   default     = "t2.micro"
+  type        = string
+}
+
+variable "consul-ui-url" {
+  description = "The A record used for jenkins UI"
+  default     = "consul.hadar.infitest.net"
   type        = string
 }
 

@@ -31,7 +31,7 @@ variable "public_subnets_cidr_list" {
 variable "vpc_name" {
   type    = string
   description = "The name of the VPC"
-  default = "Kandula-VPC"
+  default = "vpc-kandula"
 }
 
 variable "aws_region" {

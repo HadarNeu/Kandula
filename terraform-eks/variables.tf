@@ -22,14 +22,20 @@ resource "random_string" "suffix" {
 # }
 
 variable "vpc-name" {
-  description = "[REQUIRED] the name of the VPC"
-  default     = "Kandula-VPC"
+  description = "The name of the VPC"
+  default     = "vpc-kandula"
   type        = string
 }
 
 variable "aws_region" {
   default = "us-west-2"
   type    = string
+}
+
+variable "project_name" {
+  description = "The key name of the project"
+  default     = "kandula"
+  type        = string
 }
 
 variable "kubernetes_version" {
@@ -52,7 +58,7 @@ variable "group1_instance_type" {
 
 variable "group2_instance_type" {
   description = "The type of the ec2"
-  default     = "t3.large"
+  default     = "t3.medium"
   type        = string
 }
 
