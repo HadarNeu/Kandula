@@ -1,6 +1,7 @@
 
 resource "aws_instance" "jenkins_server" {
-  count= var.jenkins_instances_count
+  count = 0
+  # count= var.elastic_instances_count
   ami = data.aws_ami.jenkins-server-ami.id
   instance_type = var.jenkins-instance-type
   key_name = var.key_name

@@ -1,6 +1,7 @@
 
 resource "aws_instance" "grafana_server" {
-  count= var.grafana_instances_count
+  count = 0
+  # count= var.elastic_instances_count
   ami = data.aws_ami.ubuntu-ami.id
   instance_type = var.grafana_instance_type
   key_name = var.key_name

@@ -1,6 +1,7 @@
 
 resource "aws_instance" "prometheus_server" {
-  count= var.prometheus_instances_count
+  count = 0
+  # count= var.elastic_instances_count
   ami = data.aws_ami.ubuntu-ami.id
   instance_type = var.prometheus_instance_type
   key_name = var.key_name

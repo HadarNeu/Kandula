@@ -1,6 +1,7 @@
 
 resource "aws_instance" "kibana_server" {
-  count= var.kibana_instances_count
+  count = 0
+  # count= var.elastic_instances_count
   ami = data.aws_ami.ubuntu-ami.id
   instance_type = var.kibana_instance_type
   key_name = var.key_name
