@@ -13,8 +13,8 @@ data "aws_vpc" "kandula-vpc" {
   }
 
   filter {
-    name = "tag:Project"
-    values = ["Kandula"]
+    name = "tag:project"
+    values = ["kandula"]
   }
 
 }

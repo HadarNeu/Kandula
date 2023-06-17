@@ -1,6 +1,3 @@
-provider "aws" {
-  region  = var.aws_region
-}
 
 
 #### Getting the data of the available availability zones ####
@@ -13,7 +10,7 @@ resource "aws_vpc" "vpc" {
 
   tags = {
     "Name" = "${var.vpc_name}"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    # "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "project" = "kandula"
     "owner" = "hadar"
     "env" = "prd"
@@ -32,8 +29,8 @@ resource "aws_subnet" "public" {
 
   tags = {
     "Name" = "public-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/internal-elb"             = "1"
+    # "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    # "kubernetes.io/role/internal-elb"             = "1"
     "tier" = "public"
     "project" = "kandula"
     "owner" = "hadar"
@@ -52,8 +49,8 @@ resource "aws_subnet" "private" {
 
   tags = {
     "Name" = "private-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/internal-elb"             = "1"
+    # "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    # "kubernetes.io/role/internal-elb"             = "1"
     "tier" = "private"
     "project" = "kandula"
     "owner" = "hadar"

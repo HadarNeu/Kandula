@@ -10,8 +10,8 @@ resource "aws_db_instance" "postgres" {
   password             = var.rds_password
   port                 = 5432
   publicly_accessible = false
-#   skip_final_snapshot = false
-#   final_snapshot_identifier = rds-postgres-final-snapshot-kandula
+  skip_final_snapshot = true
+#   final_snapshot_identifier = "rds-postgres-final-snapshot-kandula"
 #   multi_az = true
 
   vpc_security_group_ids = [aws_security_group.postgres.id]
@@ -87,5 +87,13 @@ resource "aws_security_group" "postgres" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    "Name" = "postgres-sg-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "sg"
   }
 }

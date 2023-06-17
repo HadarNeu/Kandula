@@ -10,9 +10,11 @@ module "eks" {
   enable_irsa = true
   
   tags = {
-    Environment = "dev"
-    GithubRepo  = "terraform-aws-eks"
-    GithubOrg   = "terraform-aws-modules"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "eks-cluster"
+    "service" = "app"
   }
 
   vpc_id = data.aws_vpc.kandula-vpc.id
@@ -44,7 +46,7 @@ module "eks" {
 
 
 resource "aws_security_group" "all_worker_mgmt" {
-  name_prefix = "all_worker_management"
+  name_prefix = "eks-worker-sg-kandula"
   vpc_id      = data.aws_vpc.kandula-vpc.id
 
   ingress {
@@ -58,5 +60,15 @@ resource "aws_security_group" "all_worker_mgmt" {
       "192.168.0.0/16",
     ]
   }
+
+  tags = {
+    "Name" = "eks-worker-sg-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "sg"
+  }
 }
+
+
 

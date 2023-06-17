@@ -38,10 +38,10 @@ resource "aws_security_group" "kibana-server-sg" {
 
 resource "aws_security_group_rule" "kibana_elastic_access" {
   description       = "allow http access from anywhere"
-  from_port         = 9200
+  from_port         = 5601
   protocol          = "tcp"
   security_group_id = aws_security_group.kibana-server-sg.id
-  to_port           = 9200
+  to_port           = 5601
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
 }

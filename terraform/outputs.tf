@@ -5,10 +5,10 @@ output "region" {
   value       = var.aws_region
 }
 
-output "cluster_name" {
-  description = "EKS Cluster Name ***IMPORTANT****"
-  value       = local.cluster_name
-}
+# output "cluster_name" {
+#   description = "EKS Cluster Name ***IMPORTANT****"
+#   value       = local.cluster_name
+# }
 
 output "vpc-name" {
   description = "The name of the VPC "
