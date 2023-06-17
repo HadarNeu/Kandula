@@ -2,8 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kandula-app-lb-service
-# annotations:
-#     kubernetes.io/ingress.class: alb
+  namespace: kandula
 spec:
   selector:
     app: kandula-app
