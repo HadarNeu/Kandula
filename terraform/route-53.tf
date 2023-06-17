@@ -18,7 +18,7 @@ resource "aws_route53_record" "consul-dns" {
   type    = "A"
 
   alias {
-    name                   = aws_lb.consul_alb.name
+    name                   = aws_lb.consul_alb.dns_name
     zone_id                = aws_lb.consul_alb.zone_id
     evaluate_target_health = true
   }

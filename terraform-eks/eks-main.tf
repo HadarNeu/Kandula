@@ -45,34 +45,10 @@ module "eks" {
 }
 
 
-resource "aws_security_group" "eks-worker-sg" {
-  name_prefix = "eks-worker-sg-kandula"
-  vpc_id      = data.aws_vpc.kandula-vpc.id
-
-  ingress {
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
-
-    cidr_blocks = [
-      "10.0.0.0/8",
-      "172.16.0.0/12",
-      "192.168.0.0/16",
-    ]
-  }
-
-  tags = {
-    "Name" = "eks-worker-sg-${var.project_name}"
-    "project" = "kandula"
-    "owner" = "hadar"
-    "env" = "prd"
-    "resource" = "sg"
-  }
-}
 
 ######EKS Nodes Cluster SG############
 resource "aws_security_group" "eks-worker-sg" {
-  vpc_id = module.kandula-vpc.vpc_id
+  vpc_id = data.aws_vpc.kandula-vpc.id
   name   = "eks-worker-sg-${var.project_name}"
 
   tags = {
@@ -82,20 +58,6 @@ resource "aws_security_group" "eks-worker-sg" {
     "env" = "prd"
     "resource" = "sg"
   }
-}
-
-resource "aws_security_group_rule" "eks_ssh_access" {
-  description       = "allow ssh access from the cidr block"
-  from_port         = 22
-  protocol          = "tcp"
-  security_group_id = aws_security_group.eks-worker-sg.id
-  to_port           = 22
-  type              = "ingress"
-  cidr_blocks = [
-      "10.0.0.0/8",
-      "172.16.0.0/12",
-      "192.168.0.0/16",
-    ]
 }
 
 resource "aws_security_group_rule" "eks_consul_dns_access" {
