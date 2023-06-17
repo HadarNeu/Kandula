@@ -5,7 +5,7 @@
 locals {
   # cluster_name = "eks-${random_string.suffix.result}-kandula"
   cluster_name = "eks-cluster-kandula"
-  k8s_service_account_namespace = "kandula"
+  k8s_service_account_namespace = "default"
   k8s_service_account_name = "sa-kandula"
 }
 
