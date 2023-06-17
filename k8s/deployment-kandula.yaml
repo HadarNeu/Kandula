@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kandula-app
+  namespace: kandula
   annotations:
     kubernetes.io/change-cause: "First release kandula:1.0"
 spec:
