@@ -1,6 +1,3 @@
-provider "aws" {
-  region  = var.aws_region
-}
 
 
 #### Getting the data of the available availability zones ####
@@ -13,8 +10,11 @@ resource "aws_vpc" "vpc" {
 
   tags = {
     "Name" = "${var.vpc_name}"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "Project" = "Kandula"
+    # "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "vpc"
   }
 
 }
@@ -28,10 +28,14 @@ resource "aws_subnet" "public" {
   availability_zone       = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    "Name" = "public-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/internal-elb"             = "1"
-    "Tier" = "Public"
+    "Name" = "public-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    # "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    # "kubernetes.io/role/internal-elb"             = "1"
+    "tier" = "public"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "subnet"
   }
 }
 
@@ -44,10 +48,14 @@ resource "aws_subnet" "private" {
   availability_zone       = data.aws_availability_zones.available.names[count.index]
 
   tags = {
-    "Name" = "private-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}"
-    "Tier" = "Private"
-    "kubernetes.io/cluster/${var.cluster_name}" = "shared"
-    "kubernetes.io/role/internal-elb"             = "1"
+    "Name" = "private-subnet-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    # "kubernetes.io/cluster/${var.cluster_name}" = "shared"
+    # "kubernetes.io/role/internal-elb"             = "1"
+    "tier" = "private"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "subnet"
   }
 }
 
@@ -56,7 +64,11 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.vpc.id
 
   tags = {
-    "Name" = "igw-${var.vpc_name}"
+    "Name" = "igw-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "igw"
   }
 }
 
@@ -65,7 +77,11 @@ resource "aws_eip" "eip" {
   count = length(var.private_subnets_cidr_list)
 
   tags = {
-    "Name" = "eip-nat-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}"
+    "Name" = "eip-nat-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "eip"
   }
 }
 
@@ -76,7 +92,11 @@ resource "aws_nat_gateway" "nat" {
   subnet_id     = aws_subnet.public.*.id[count.index]
 
   tags = {
-    "Name" = "nat-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}"
+    "Name" = "nat-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "nat"
   }
 }
 
@@ -90,7 +110,12 @@ resource "aws_route_table" "public_route_table" {
   vpc_id = aws_vpc.vpc.id
 
   tags = {
-    "Name" = "public-route-table-${var.vpc_name}"
+    "Name" = "public-route-table-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "route-table"
+    "tier" = "public"
   }
 }
 
@@ -100,7 +125,12 @@ resource "aws_route_table" "private_route_tables" {
   vpc_id = aws_vpc.vpc.id
 
   tags = {
-    "Name" = "private-route-table-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.vpc_name}"
+    "Name" = "private-route-table-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "route-table"
+    "tier" = "private"
   }
 }
 

@@ -80,13 +80,8 @@ leave_on_terminate = true
 enable_syslog = true
 log_level = "info"
 retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_value=true"]
-server = true
-bootstrap_expect = 3
-client_addr = "0.0.0.0"
-node_name = "consul-server-$INSTANCE_ID-kandula"
-ui_config {
-  enabled = true
-}
+server = false
+node_name = "elastic-$INSTANCE_ID-kandula"
 check = {
   id = "ssh"
   name = "SSH TCP on port 22"
@@ -103,3 +98,15 @@ sudo systemctl enable consul.service
 sudo systemctl restart consul.service
 echo "Restarting systemd-resolved service ..."
 systemctl restart systemd-resolved
+
+
+# ------------------------------------
+# Elasticsearch Setup
+# ------------------------------------
+
+curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt update
+sudo apt -y install elasticsearch
+sudo systemctl start elasticsearch
+sudo systemctl enable elasticsearch

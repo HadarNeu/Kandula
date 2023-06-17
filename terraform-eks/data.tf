@@ -13,8 +13,8 @@ data "aws_vpc" "kandula-vpc" {
   }
 
   filter {
-    name = "tag:Project"
-    values = ["Kandula"]
+    name = "tag:project"
+    values = ["kandula"]
   }
 
 }
@@ -24,14 +24,19 @@ data "aws_subnets" "private" {
     data.aws_vpc.kandula-vpc
   ]
   filter {
-    name = "tag:Tier"
-    values = ["Private"]
+    name = "tag:tier"
+    values = ["private"]
   }
 
   filter {
-    name = "vpc-id"
-    values = ["${data.aws_vpc.kandula-vpc.id}"]
+    name = "tag:project"
+    values = ["kandula"]
   }
+
+  # filter {
+  #   name = "vpc-id"
+  #   values = ["${data.aws_vpc.kandula-vpc.id}"]
+  # }
 }
 
 

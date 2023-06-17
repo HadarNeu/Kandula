@@ -80,13 +80,8 @@ leave_on_terminate = true
 enable_syslog = true
 log_level = "info"
 retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_value=true"]
-server = true
-bootstrap_expect = 3
-client_addr = "0.0.0.0"
-node_name = "consul-server-$INSTANCE_ID-kandula"
-ui_config {
-  enabled = true
-}
+server = false
+node_name = "kandula-agent-$INSTANCE_ID"
 check = {
   id = "ssh"
   name = "SSH TCP on port 22"

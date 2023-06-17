@@ -80,13 +80,8 @@ leave_on_terminate = true
 enable_syslog = true
 log_level = "info"
 retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_value=true"]
-server = true
-bootstrap_expect = 3
-client_addr = "0.0.0.0"
-node_name = "consul-server-$INSTANCE_ID-kandula"
-ui_config {
-  enabled = true
-}
+server = false
+node_name = "kibana-$INSTANCE_ID-kandula"
 check = {
   id = "ssh"
   name = "SSH TCP on port 22"
@@ -103,3 +98,14 @@ sudo systemctl enable consul.service
 sudo systemctl restart consul.service
 echo "Restarting systemd-resolved service ..."
 systemctl restart systemd-resolved
+
+
+# ------------------------------------
+# Kibana Setup
+# ------------------------------------
+
+wget https://artifacts.elastic.co/downloads/kibana/kibana-oss-7.10.2-amd64.deb
+sudo dpkg -i kibana-*.deb
+echo 'server.host: "0.0.0.0"' > /etc/kibana/kibana.yml
+sudo systemctl enable kibana
+sudo systemctl start kibana

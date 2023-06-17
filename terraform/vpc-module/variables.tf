@@ -4,6 +4,12 @@ variable "cluster_name" {
   default = null
 }
 
+variable "project_name" {
+  description = "The key name of the project"
+  default     = null 
+  type        = string
+}
+
 variable "vpc_cidr_block" {
   type = string
   description = "The cidr block of the VPC"
@@ -25,7 +31,7 @@ variable "public_subnets_cidr_list" {
 variable "vpc_name" {
   type    = string
   description = "The name of the VPC"
-  default = "Kandula-VPC"
+  default = "vpc-kandula"
 }
 
 variable "aws_region" {

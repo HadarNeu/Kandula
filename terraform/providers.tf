@@ -27,8 +27,13 @@ terraform {
       version = "~> 2.2.0"
     }
   }
+  backend "s3" {
+    # backend is configured with backend file 
+    # terraform init -backend-config="backend.tfvars"
+  }
 }
 
 provider "aws" {
   region = var.aws_region
+  profile = var.aws_profile
 }

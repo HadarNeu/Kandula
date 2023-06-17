@@ -72,16 +72,16 @@ echo "Creating /etc/consul.d/consul.hcl ..."
 tee /etc/consul.d/consul.hcl > /dev/null <<EOF
 advertise_addr = "$INSTANCE_IP"
 data_dir = "/opt/consul"
-datacenter = "dc-hadar"
+datacenter = "dc-hadar-kandula"
 encrypt = "uDBV4e+LbFW3019YKPxIrg=="
 disable_remote_exec = true
 disable_update_check = true
 leave_on_terminate = true
 enable_syslog = true
 log_level = "info"
-retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul_server tag_value=true"]
+retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_value=true"]
 server = false
-node_name = "kandula-agent-$INSTANCE_ID"
+node_name = "filebeat-$INSTANCE_ID-kandula"
 check = {
   id = "ssh"
   name = "SSH TCP on port 22"
@@ -98,3 +98,53 @@ sudo systemctl enable consul.service
 sudo systemctl restart consul.service
 echo "Restarting systemd-resolved service ..."
 systemctl restart systemd-resolved
+
+
+# ------------------------------------
+# Filebeat Setup
+# ------------------------------------
+
+
+curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.8.1-linux-x86_64.tar.gz
+tar xzvf filebeat-8.8.1-linux-x86_64.tar.gz
+
+: '
+sudo cat <<\EOF > /etc/filebeat/filebeat.yml
+filebeat.inputs:
+  - type: log
+    enabled: false
+    paths:
+      - /var/log/auth.log
+
+filebeat.modules:
+  - module: system
+    syslog:
+      enabled: false
+    auth:
+      enabled: false
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+setup.dashboards.enabled: false
+
+setup.template.name: "filebeat"
+setup.template.pattern: "filebeat-*"
+setup.template.settings:
+  index.number_of_shards: 1
+
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+
+output.elasticsearch:
+  hosts: [ "localhost:9200" ]
+  index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
+## OR
+#output.logstash:
+#  hosts: [ "127.0.0.1:5044" ]
+EOF
+'
+echo "INFO: userdata finished"

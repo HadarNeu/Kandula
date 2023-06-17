@@ -72,20 +72,20 @@ echo "Creating /etc/consul.d/consul.hcl ..."
 tee /etc/consul.d/consul.hcl > /dev/null <<EOF
 advertise_addr = "$INSTANCE_IP"
 data_dir = "/opt/consul"
-datacenter = "dc-hadar"
+datacenter = "dc-hadar-kandula"
 encrypt = "uDBV4e+LbFW3019YKPxIrg=="
 disable_remote_exec = true
 disable_update_check = true
 leave_on_terminate = true
 enable_syslog = true
 log_level = "info"
-retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul_server tag_value=true"]
+retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_value=true"]
 server = false
-node_name = "kandula-agent-jenkins-server-$INSTANCE_ID"
+node_name = "grafana-$INSTANCE_ID-kandula"
 check = {
-  id = "jenkins"
-  name = "check health of jenkins service"
-  tcp = "localhost:8080"
+  id = "ssh"
+  name = "SSH TCP on port 22"
+  tcp = "localhost:22"
   interval = "10s"
   timeout = "1s"
 }
@@ -98,3 +98,18 @@ sudo systemctl enable consul.service
 sudo systemctl restart consul.service
 echo "Restarting systemd-resolved service ..."
 systemctl restart systemd-resolved
+
+
+# ------------------------------------
+# Grafana Setup
+# ------------------------------------
+
+
+sudo apt-get install -y apt-transport-https
+sudo apt-get install -y software-properties-common wget
+sudo wget -q -O /usr/share/keyrings/grafana.key https://apt.grafana.com/gpg.key
+echo "deb [signed-by=/usr/share/keyrings/grafana.key] https://apt.grafana.com stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
+sudo apt-get update
+sudo apt-get install grafana
+sudo /bin/systemctl start grafana-server
+sudo /bin/systemctl status grafana-server

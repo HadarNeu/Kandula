@@ -1,8 +1,28 @@
+#########REQUIRED############
+variable "rds_password" {
+  description = "The admin password for the rds, required - SECRET"
+  default     = null
+  type        = string
+}
+
+variable "aws_profile" {
+  description = "The profile of the credentials"
+  default     = null
+  type        = string
+}
+
 ########GENERAL################
 variable "aws_region" {
   default = "us-west-2"
   type    = string
 }
+
+variable "project_name" {
+  description = "The key name of the project"
+  default     = "kandula"
+  type        = string
+}
+
 
 variable "key_name" {
   description = "The key name of the Key Pair to use for the instance"
@@ -34,13 +54,6 @@ variable "key_destination" {
   type        = string
 }
 
-variable "jenkins-ui-url" {
-  description = "The A record used for jenkins UI"
-  default     = "hadar.infitest.net"
-  type        = string
-}
-
-
 ########JENKINS################
 variable "jenkins-ami-name" {
   description = "The name of the pre-configured Jenkins ami"
@@ -50,13 +63,19 @@ variable "jenkins-ami-name" {
 
 variable "jenkins-instance-type" {
   description = "The type of the Jenkins Server ec2"
-  default = "t3.medium"
+  default = "t3.small"
   type = string
 }
 
 variable "jenkins_instances_count" {
   description = "The number of bastion instances to create"
   default     = 1
+}
+
+variable "jenkins-ui-url" {
+  description = "The A record used for jenkins UI"
+  default     = "jenkins.hadar.infitest.net"
+  type        = string
 }
 
 ########BASTION################
@@ -89,6 +108,12 @@ variable "consul_instance_type" {
   type        = string
 }
 
+variable "consul-ui-url" {
+  description = "The A record used for jenkins UI"
+  default     = "consul.hadar.infitest.net"
+  type        = string
+}
+
 ########ANSIBLE################
 variable "ansible_instances_count" {
   description = "The number of bastion instances to create"
@@ -97,17 +122,68 @@ variable "ansible_instances_count" {
 
 variable "ansible_instance_type" {
   description = "The type of the ec2"
-  default     = "t2.micro"
+  default     = "t3.small"
   type        = string
 }
 
-#######Creation of cluster name EKS##########
-
-locals {
-  cluster_name = "opsschool-eks-hadar-${random_string.suffix.result}"
+########ELASTIC################
+variable "elastic_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
 }
 
-resource "random_string" "suffix" {
-  length  = 8
-  special = false
+variable "elastic_instance_type" {
+  description = "The type of the ec2"
+  default     = "t3.small"
+  type        = string
 }
+
+########FLUENTD################
+variable "fluentd_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
+}
+
+variable "fluentd_instance_type" {
+  description = "The type of the ec2"
+  default     = "t3.small"
+  type        = string
+}
+
+########KIBANA################
+variable "kibana_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
+}
+
+variable "kibana_instance_type" {
+  description = "The type of the ec2"
+  default     = "t3.small"
+  type        = string
+}
+
+########GRAFANA################
+variable "grafana_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
+}
+
+variable "grafana_instance_type" {
+  description = "The type of the ec2"
+  default     = "t3.small"
+  type        = string
+}
+
+########PROMETHEUS################
+variable "prometheus_instances_count" {
+  description = "The number of bastion instances to create"
+  default     = 1
+}
+
+variable "prometheus_instance_type" {
+  description = "The type of the ec2"
+  default     = "t3.small"
+  type        = string
+}
+
+

@@ -19,7 +19,7 @@ output "region" {
 }
 
 output "cluster_name" {
-  description = "EKS Cluster Name ***IMPORTANT****"
+  description = "EKS Cluster Name"
   value       = local.cluster_name
 }
 

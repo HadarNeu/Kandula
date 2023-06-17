@@ -80,13 +80,8 @@ leave_on_terminate = true
 enable_syslog = true
 log_level = "info"
 retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_value=true"]
-server = true
-bootstrap_expect = 3
-client_addr = "0.0.0.0"
-node_name = "consul-server-$INSTANCE_ID-kandula"
-ui_config {
-  enabled = true
-}
+server = false
+node_name = "fluentd-$INSTANCE_ID-kandula"
 check = {
   id = "ssh"
   name = "SSH TCP on port 22"
@@ -103,3 +98,13 @@ sudo systemctl enable consul.service
 sudo systemctl restart consul.service
 echo "Restarting systemd-resolved service ..."
 systemctl restart systemd-resolved
+
+
+# ------------------------------------
+# FluentD Setup
+# ------------------------------------
+
+# td-agent 4
+curl -fsSL https://toolbelt.treasuredata.com/sh/install-ubuntu-focal-td-agent4.sh | sh
+sudo systemctl start td-agent.service
+sudo systemctl status td-agent.service
