@@ -95,6 +95,7 @@ resource "aws_lb_listener" "consul_lb_listener" {
 
 # Creating the Application Load Balancer
 resource "aws_lb" "jenkins_alb" {
+  count = 0 
   name               = "jenkins-alb-kandula"
   internal           = false
   load_balancer_type = "application"
@@ -116,6 +117,7 @@ resource "aws_lb" "jenkins_alb" {
 
 # Creating Target Group for public access
 resource "aws_lb_target_group" "jenkins_tg" {
+  count = 0
   name       = "jenkins-tg-kandula"
   port       = 80
   protocol   = "HTTP"
@@ -145,7 +147,8 @@ resource "aws_lb_target_group" "jenkins_tg" {
 
 # Attechement of target group to jenkins servers
 resource "aws_lb_target_group_attachment" "jenkins_tg_attachment" {
-  count = var.jenkins_instances_count
+  # count = var.jenkins_instances_count
+  count = 0
 
   target_group_arn = aws_lb_target_group.jenkins_tg.arn
   target_id        = aws_instance.jenkins_server[count.index].id
@@ -155,6 +158,7 @@ resource "aws_lb_target_group_attachment" "jenkins_tg_attachment" {
 
 # A listener to recieve incoming traffic
 resource "aws_lb_listener" "jenkins_lb_listener" {
+  count = 0
   load_balancer_arn = aws_lb.jenkins_alb.arn
   port              = "80"
   protocol          = "HTTP"
