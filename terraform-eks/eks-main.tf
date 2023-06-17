@@ -15,6 +15,7 @@ module "eks" {
     "env" = "prd"
     "resource" = "eks-cluster"
     "service" = "k8s"
+    "consul" = "true"
   }
 
   vpc_id = data.aws_vpc.kandula-vpc.id

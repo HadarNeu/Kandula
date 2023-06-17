@@ -1,0 +1,15 @@
+global:
+  enabled: false
+  image: "hashicorp/consul:1.15.1"
+  datacenter: "dc-hadar-kandula"
+  gossipEncryption:
+    secretName: "consul-gossip-encryption-key"
+    secretKey: "key"
+client:
+  enabled: true
+  join:
+    - "provider=aws tag_key=consul tag_value=true"
+dns:
+   enabled: true
+syncCatalog:
+  enabled: true
