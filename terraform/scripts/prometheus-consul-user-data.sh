@@ -117,13 +117,84 @@ sudo apt install curl
 mkdir -p /tmp/prometheus
 cd /tmp/prometheus
 sudo wget https://github.com/prometheus/prometheus/releases/download/v2.44.0/prometheus-2.44.0.linux-amd64.tar.gz
-tar xvf prometheus*.tar.gz
+sudo tar xvf prometheus*.tar.gz
 cd /tmp/prometheus/prometheus-2.44.0.linux-amd64
 sudo mv prometheus promtool /usr/local/bin/
 sudo mv prometheus.yml /etc/prometheus/prometheus.yml
-sudo mv consoles/ console_libraries/ /etc/prometheus/
+# sudo mv consoles/ console_libraries/ /etc/prometheus/
 cat /etc/prometheus/prometheus.yml
 #now you configure prometheus
+
+# cd ~
+# sudo wget https://github.com/prometheus/prometheus/releases/download/v2.44.0/prometheus-2.44.0.linux-amd64.tar.gz
+# tar xvfz prometheus-*.tar.gz
+# cd prometheus-2.44.0.linux-amd64.tar.gz
+
+sudo touch /etc/systemd/system/prometheus.service
+
+sudo tee /etc/systemd/system/prometheus.service &>/dev/null << EOF
+[Unit]
+Description=Prometheus #Description
+Wants=network-online.target
+After=network-online.target
+[Service]
+Type=simple
+User=node_exporter #user
+Group=node_exporter #group
+ExecReload=/bin/kill -HUP \$MAINPID
+ExecStart=/usr/local/bin/prometheus \
+--config.file=/etc/prometheus/prometheus.yml \ #main config
+--storage.tsdb.path=/var/lib/prometheus \ #database
+--web.console.templates=/etc/prometheus/consoles \
+--web.console.libraries=/etc/prometheus/console_libraries \
+--web.listen-address=0.0.0.0:9090 \
+--web.external-url=
+SyslogIdentifier=prometheus #name of log file
+Restart=always #enable restart
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo tee ./prometheus.yml &>/dev/null << EOF
+global:
+  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+  external_labels:
+    monitor: 'prometheus'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      # - alertmanager:9093
+
+scrape_configs:
+  # scraping itself
+  - job_name: 'prometheus'
+    static_configs:
+    - targets: ['localhost:9090']
+
+  # - job_name: 'node'
+  #   ec2_sd_configs:
+  #     - region: us-east-2
+  #       access_key: yourkey
+  #       secret_key: yourkey
+  #       port: 9100
+
+  - job_name: 'node_exporter'
+    scrape_interval: 15s
+    static_configs:
+      - targets: 
+        - 'localhost:9100'
+EOF
+
+sudo ./prometheus --config.file=prometheus.yml
+# systemd
+sudo systemctl daemon-reload
+sudo systemctl enable prometheus
+sudo systemctl start prometheus
 
 # ------------------------------------
 # Node Exporter

@@ -1,28 +1,27 @@
 
-resource "aws_instance" "prometheus_server" {
-  count= var.prometheus_instances_count
-  ami = data.aws_ami.ubuntu-ami.id
-  instance_type = var.prometheus_instance_type
-  key_name = var.key_name
-  # subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
-  # associate_public_ip_address = false
-  subnet_id                   = module.kandula-vpc.public_subnets_id[count.index]
-  associate_public_ip_address = true
-  vpc_security_group_ids      = [aws_security_group.prometheus-server-sg.id]
-  user_data            = file("${path.module}/scripts/prometheus-consul-user-data.sh")
-  iam_instance_profile   = aws_iam_instance_profile.consul-join.name
+# resource "aws_instance" "prometheus_server" {
+#   count= var.prometheus_instances_count
+#   ami = data.aws_ami.ubuntu-ami.id
+#   instance_type = var.prometheus_instance_type
+#   key_name = var.key_name
+#   # subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
+#   # associate_public_ip_address = false
+#   subnet_id                   = module.kandula-vpc.public_subnets_id[count.index]
+#   associate_public_ip_address = true
+#   vpc_security_group_ids      = [aws_security_group.prometheus-server-sg.id]
+#   user_data            = file("${path.module}/scripts/prometheus-consul-user-data.sh")
+#   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
 
-  tags = {
-    Name = "prometheus-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
-    "project" = "kandula"
-    "owner" = "hadar"
-    "env" = "prd"
-    "resource" = "ec2"
-    "service" = "prometheus"
-    "consul" = "true"
-  }
-
-}
+#   tags = {
+#     Name = "prometheus-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+#     "project" = "kandula"
+#     "owner" = "hadar"
+#     "env" = "prd"
+#     "resource" = "ec2"
+#     "service" = "prometheus"
+#     "consul" = "true"
+#   }
+# }
 
 ######Elastic SG############
 resource "aws_security_group" "prometheus-server-sg" {

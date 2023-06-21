@@ -18,15 +18,15 @@ scrape_configs:
     static_configs:
     - targets: ['localhost:9090']
 
-  - job_name: 'node'
-    ec2_sd_configs:
-      - region: us-east-2
-        access_key: yourkey
-        secret_key: yourkey
-        port: 9100
+  # - job_name: 'node'
+  #   ec2_sd_configs:
+  #     - region: us-east-2
+  #       access_key: yourkey
+  #       secret_key: yourkey
+  #       port: 9100
 
   - job_name: 'node_exporter'
     scrape_interval: 15s
     static_configs:
       - targets: 
-        - '172.17.0.1:9100'
+        - 'localhost:9100'
