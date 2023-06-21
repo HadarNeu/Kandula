@@ -4,8 +4,10 @@ resource "aws_instance" "prometheus_server" {
   ami = data.aws_ami.ubuntu-ami.id
   instance_type = var.prometheus_instance_type
   key_name = var.key_name
-  subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
-  associate_public_ip_address = false
+  # subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
+  # associate_public_ip_address = false
+  subnet_id                   = module.kandula-vpc.public_subnets_id[count.index]
+  associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.prometheus-server-sg.id]
   user_data            = file("${path.module}/scripts/prometheus-consul-user-data.sh")
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
