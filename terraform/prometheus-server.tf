@@ -38,12 +38,22 @@ resource "aws_security_group" "prometheus-server-sg" {
   }
 }
 
-resource "aws_security_group_rule" "prometheus_grafana_access" {
+resource "aws_security_group_rule" "prometheus_dashboard_access" {
   description       = "allow http access from anywhere"
   from_port         = 9090
   protocol          = "tcp"
   security_group_id = aws_security_group.prometheus-server-sg.id
   to_port           = 9090
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "prometheus_node_expoter_access" {
+  description       = "allow http access from anywhere"
+  from_port         = 9100
+  protocol          = "tcp"
+  security_group_id = aws_security_group.prometheus-server-sg.id
+  to_port           = 9100
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
 }
