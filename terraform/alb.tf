@@ -91,88 +91,88 @@ resource "aws_lb_listener" "consul_lb_listener" {
   }
 }
 
-##########Jenkins ALB ##############
+# ##########Jenkins ALB ##############
 
-# Creating the Application Load Balancer
-resource "aws_lb" "jenkins_alb" {
-  name               = "jenkins-alb-kandula"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb_sg.id]
+# # Creating the Application Load Balancer
+# resource "aws_lb" "jenkins_alb" {
+#   name               = "jenkins-alb-kandula"
+#   internal           = false
+#   load_balancer_type = "application"
+#   security_groups    = [aws_security_group.alb_sg.id]
 
-  subnets = [
-    module.kandula-vpc.public_subnets_id[0],
-    module.kandula-vpc.public_subnets_id[1]
+#   subnets = [
+#     module.kandula-vpc.public_subnets_id[0],
+#     module.kandula-vpc.public_subnets_id[1]
 
-  ]
-  tags = {
-    "Name" = "alb-jenkins-${var.project_name}"
-    "project" = "kandula"
-    "owner" = "hadar"
-    "env" = "prd"
-    "resource" = "alb"
-  }
-}
+#   ]
+#   tags = {
+#     "Name" = "alb-jenkins-${var.project_name}"
+#     "project" = "kandula"
+#     "owner" = "hadar"
+#     "env" = "prd"
+#     "resource" = "alb"
+#   }
+# }
 
-# Creating Target Group for public access
-resource "aws_lb_target_group" "jenkins_tg" {
-  name       = "jenkins-tg-kandula"
-  port       = 80
-  protocol   = "HTTP"
-  vpc_id     = module.kandula-vpc.vpc_id
-  slow_start = 0
+# # Creating Target Group for public access
+# resource "aws_lb_target_group" "jenkins_tg" {
+#   name       = "jenkins-tg-kandula"
+#   port       = 80
+#   protocol   = "HTTP"
+#   vpc_id     = module.kandula-vpc.vpc_id
+#   slow_start = 0
 
-  load_balancing_algorithm_type = "round_robin"
+#   load_balancing_algorithm_type = "round_robin"
 
-  health_check {
-    enabled             = true
-    port                = 80
-    interval            = 30
-    protocol            = "HTTP"
-    path                = "/"
-    matcher             = "200"
-    healthy_threshold   = 3
-    unhealthy_threshold = 3
-  }
-  tags = {
-    "Name" = "tg-jenkins-${var.project_name}"
-    "project" = "kandula"
-    "owner" = "hadar"
-    "env" = "prd"
-    "resource" = "tg"
-  }
-}
+#   health_check {
+#     enabled             = true
+#     port                = 80
+#     interval            = 30
+#     protocol            = "HTTP"
+#     path                = "/"
+#     matcher             = "200"
+#     healthy_threshold   = 3
+#     unhealthy_threshold = 3
+#   }
+#   tags = {
+#     "Name" = "tg-jenkins-${var.project_name}"
+#     "project" = "kandula"
+#     "owner" = "hadar"
+#     "env" = "prd"
+#     "resource" = "tg"
+#   }
+# }
 
-# Attechement of target group to jenkins servers
-resource "aws_lb_target_group_attachment" "jenkins_tg_attachment" {
-  count = var.jenkins_instances_count
+# # Attechement of target group to jenkins servers
+# resource "aws_lb_target_group_attachment" "jenkins_tg_attachment" {
+#   count = var.jenkins_instances_count
 
-  target_group_arn = aws_lb_target_group.jenkins_tg.arn
-  target_id        = aws_instance.jenkins_server[count.index].id
-  port             = 8080
-}
+#   target_group_arn = aws_lb_target_group.jenkins_tg.arn
+#   target_id        = aws_instance.jenkins_server[count.index].id
+#   port             = 8080
+# }
 
 
-# A listener to recieve incoming traffic
-resource "aws_lb_listener" "jenkins_lb_listener" {
-  load_balancer_arn = aws_lb.jenkins_alb.arn
-  port              = "80"
-  protocol          = "HTTP"
+# # A listener to recieve incoming traffic
+# resource "aws_lb_listener" "jenkins_lb_listener" {
+#   load_balancer_arn = aws_lb.jenkins_alb.arn
+#   port              = "80"
+#   protocol          = "HTTP"
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.jenkins_tg.arn
-  }
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.jenkins_tg.arn
+#   }
 
-  tags = {
-    "Name" = "alb-listener-jenkins-${var.project_name}"
-    "project" = "kandula"
-    "owner" = "hadar"
-    "env" = "prd"
-    "resource" = "listener"
-    "port" = "80"
-  }
-}
+#   tags = {
+#     "Name" = "alb-listener-jenkins-${var.project_name}"
+#     "project" = "kandula"
+#     "owner" = "hadar"
+#     "env" = "prd"
+#     "resource" = "listener"
+#     "port" = "80"
+#   }
+# }
 
 
 

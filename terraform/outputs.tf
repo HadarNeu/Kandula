@@ -40,18 +40,18 @@ output "consul_alb_dns" {
   value = aws_lb.consul_alb.dns_name
 }
 
-output "jenkins_alb_dns" {
-  description = "The DNS of the consul load balancer we created"
-  value = aws_lb.jenkins_alb.dns_name
-}
+# output "jenkins_alb_dns" {
+#   description = "The DNS of the consul load balancer we created"
+#   value = aws_lb.jenkins_alb.dns_name
+# }
 
-output "jenkins-ui-url" {
-  description = "The A record used for jenkins UI"
-  value = var.jenkins-ui-url
-}
+# output "jenkins-ui-url" {
+#   description = "The A record used for jenkins UI"
+#   value = var.jenkins-ui-url
+# }
 
-output "jenkins-sg" {
-  description = "The sg of jenkins-for cloud configuration"
-  value = aws_security_group.jenkins-servers-sg.id
-}
+# output "jenkins-sg" {
+#   description = "The sg of jenkins-for cloud configuration"
+#   value = aws_security_group.jenkins-servers-sg.id
+# }
 
