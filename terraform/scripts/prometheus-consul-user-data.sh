@@ -83,11 +83,14 @@ retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_va
 server = false
 node_name = "prometheus-$INSTANCE_ID-kandula"
 check = {
-  id = "ssh"
-  name = "SSH TCP on port 22"
-  tcp = "localhost:22"
+  id = "prometheus"
+  name = "prometheus dashboard"
+  tcp = "localhost:9090"
   interval = "10s"
   timeout = "1s"
+}
+dns {
+  enable_truncate_name: true
 }
 EOF
 
@@ -121,41 +124,33 @@ sudo tar xvf prometheus*.tar.gz
 cd /tmp/prometheus/prometheus-2.44.0.linux-amd64
 sudo mv prometheus promtool /usr/local/bin/
 sudo mv prometheus.yml /etc/prometheus/prometheus.yml
-# sudo mv consoles/ console_libraries/ /etc/prometheus/
+sudo mv consoles/ console_libraries/ /etc/prometheus/
 cat /etc/prometheus/prometheus.yml
 #now you configure prometheus
-
-# cd ~
-# sudo wget https://github.com/prometheus/prometheus/releases/download/v2.44.0/prometheus-2.44.0.linux-amd64.tar.gz
-# tar xvfz prometheus-*.tar.gz
-# cd prometheus-2.44.0.linux-amd64.tar.gz
 
 sudo touch /etc/systemd/system/prometheus.service
 
 sudo tee /etc/systemd/system/prometheus.service &>/dev/null << EOF
 [Unit]
-Description=Prometheus #Description
+Description=Prometheus
 Wants=network-online.target
 After=network-online.target
+
 [Service]
+User=root
+Group=root
 Type=simple
-User=node_exporter #user
-Group=node_exporter #group
-ExecReload=/bin/kill -HUP \$MAINPID
 ExecStart=/usr/local/bin/prometheus \
---config.file=/etc/prometheus/prometheus.yml \ #main config
---storage.tsdb.path=/var/lib/prometheus \ #database
---web.console.templates=/etc/prometheus/consoles \
---web.console.libraries=/etc/prometheus/console_libraries \
---web.listen-address=0.0.0.0:9090 \
---web.external-url=
-SyslogIdentifier=prometheus #name of log file
-Restart=always #enable restart
+    --config.file /etc/prometheus/prometheus.yml \
+    --storage.tsdb.path /var/lib/prometheus/ \
+    --web.console.templates=/etc/prometheus/consoles \
+    --web.console.libraries=/etc/prometheus/console_libraries
+
 [Install]
 WantedBy=multi-user.target
 EOF
 
-sudo tee ./prometheus.yml &>/dev/null << EOF
+sudo tee /etc/prometheus/prometheus.yml &>/dev/null << EOF
 global:
   scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
   evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
@@ -190,7 +185,6 @@ scrape_configs:
         - 'localhost:9100'
 EOF
 
-sudo ./prometheus --config.file=prometheus.yml
 # systemd
 sudo systemctl daemon-reload
 sudo systemctl enable prometheus
@@ -245,3 +239,7 @@ sudo systemctl start node_exporter
 systemctl status --no-pager node_exporter
 
 sudo systemctl enable node_exporter
+
+sudo systemctl start prometheus && sudo systemctl status prometheus
+
+consul services register -name prometheus -port 9090

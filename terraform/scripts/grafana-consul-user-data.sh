@@ -83,11 +83,14 @@ retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_va
 server = false
 node_name = "grafana-$INSTANCE_ID-kandula"
 check = {
-  id = "ssh"
-  name = "SSH TCP on port 22"
-  tcp = "localhost:22"
+  id = "grafana"
+  name = "grafana dashboard port 3000"
+  tcp = "localhost:3000"
   interval = "10s"
   timeout = "1s"
+}
+dns {
+  enable_truncate_name: true
 }
 EOF
 
@@ -112,7 +115,6 @@ echo "deb [signed-by=/usr/share/keyrings/grafana.key] https://apt.grafana.com st
 sudo apt-get update
 sudo apt-get install -y grafana
 sudo /bin/systemctl start grafana-server
-sudo /bin/systemctl status grafana-server
 
 # ------------------------------------
 # Node Exporter
@@ -163,3 +165,6 @@ sudo systemctl start node_exporter
 systemctl status --no-pager node_exporter
 
 sudo systemctl enable node_exporter
+sudo /bin/systemctl start grafana-server
+sudo /bin/systemctl status grafana-server
+consul services register -name grafana -port 3000
