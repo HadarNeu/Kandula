@@ -18,6 +18,7 @@
 #     "resource" = "ec2"
 #     "service" = "elastic"
 #     "consul" = "true"
+#     "consul-agent" = "true"
 #   }
 
 # }

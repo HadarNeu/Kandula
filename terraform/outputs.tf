@@ -40,6 +40,11 @@ output "consul_alb_dns" {
   value = aws_lb.consul_alb.dns_name
 }
 
+output "ansible_public_ip_temp" {
+  description = "The ip of ansible server- temp"
+  value = aws_instance.ansible_server.*.public_ip
+}
+
 # output "jenkins_alb_dns" {
 #   description = "The DNS of the consul load balancer we created"
 #   value = aws_lb.jenkins_alb.dns_name

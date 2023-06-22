@@ -9,6 +9,7 @@ resource "aws_instance" "ansible_server" {
 
   vpc_security_group_ids = [aws_security_group.ansible_sg.id]
   key_name               = var.key_name
+  iam_instance_profile   = aws_iam_instance_profile.ansible-server.name
 
   user_data = file("${path.module}/scripts/ansible-consul-user-data.sh")
   provisioner "file" {
@@ -36,6 +37,7 @@ resource "aws_instance" "ansible_server" {
     "resource" = "ec2"
     "service" = "ansible"
     "consul" = "true"
+    "consul-agent" = "true"
   }
 }
 

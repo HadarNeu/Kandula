@@ -20,6 +20,7 @@ resource "aws_instance" "grafana_server" {
     "resource" = "ec2"
     "service" = "grafana"
     "consul" = "true"
+    "consul-agent" = "true"
   }
 
 }

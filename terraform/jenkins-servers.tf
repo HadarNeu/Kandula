@@ -18,6 +18,7 @@
 #     "resource" = "ec2"
 #     "service" = "jenkins"
 #     "consul" = "true"
+#     "consul-agent" = "true"
 #   }
 
 # }

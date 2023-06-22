@@ -18,6 +18,7 @@
 #     "resource" = "ec2"
 #     "service" = "kibana"
 #     "consul" = "true"
+    # "consul-agent" = "true"
 #   }
 
 # }

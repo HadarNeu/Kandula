@@ -20,6 +20,7 @@ resource "aws_instance" "prometheus_server" {
     "resource" = "ec2"
     "service" = "prometheus"
     "consul" = "true"
+    "consul-agent" = "true"
   }
 }
 
