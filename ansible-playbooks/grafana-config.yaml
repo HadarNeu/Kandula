@@ -7,12 +7,12 @@
   tasks:
     - name: Copy datasource configuration
       copy:
-        src: /path/to/datasource.yaml
+        src: /home/ubuntu/Kandula/ansible-playbooks/datasources.yaml
         dest: /etc/grafana/provisioning/datasources/datasource.yaml
 
     - name: Copy dashboard configuration
       copy:
-        src: /path/to/dashboard.yaml
+        src: /home/ubuntu/Kandula/ansible-playbooks/dashboards.yaml
         dest: /etc/grafana/provisioning/dashboards/dashboard.yaml
 
     - name: Restart Grafana service
