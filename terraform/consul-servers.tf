@@ -28,6 +28,10 @@ resource "aws_instance" "consul_server_subnet2" {
   key_name      = var.key_name
   subnet_id                   = module.kandula-vpc.private_subnets_id[1]
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
+  metadata_options {
+    http_endpoint = "enabled"
+    instance_metadata_tags = "enabled"
+  }
 
   vpc_security_group_ids = [aws_security_group.consul-servers-sg.id]
   user_data            = file("${path.module}/scripts/consul-server-user-data.sh")

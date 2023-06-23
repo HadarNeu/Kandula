@@ -6,10 +6,13 @@ resource "aws_instance" "ansible_server" {
   # subnet_id = module.kandula-vpc.private_subnets_id[count.index]
   subnet_id                   = module.kandula-vpc.public_subnets_id[count.index]
   associate_public_ip_address = true
-
   vpc_security_group_ids = [aws_security_group.ansible_sg.id]
   key_name               = var.key_name
   iam_instance_profile   = aws_iam_instance_profile.ansible-server.name
+  metadata_options {
+    http_endpoint = "enabled"
+    instance_metadata_tags = "enabled"
+  }
 
   user_data = file("${path.module}/scripts/ansible-consul-user-data.sh")
   provisioner "file" {
@@ -37,7 +40,6 @@ resource "aws_instance" "ansible_server" {
     "resource" = "ec2"
     "service" = "ansible"
     "consul" = "true"
-    "consul-agent" = "true"
   }
 }
 

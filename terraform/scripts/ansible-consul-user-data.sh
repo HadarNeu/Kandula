@@ -166,3 +166,11 @@ sudo systemctl start node_exporter
 systemctl status --no-pager node_exporter
 
 sudo systemctl enable node_exporter
+
+sudo systemctl enable consul.service
+sudo systemctl restart consul.service
+echo "Restarting systemd-resolved service ..."
+systemctl restart systemd-resolved
+
+
+consul services register -name ansible -port 22

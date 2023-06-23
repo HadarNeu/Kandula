@@ -242,4 +242,9 @@ sudo systemctl enable node_exporter
 
 sudo systemctl start prometheus && sudo systemctl status prometheus
 
+sudo systemctl enable consul.service
+sudo systemctl restart consul.service
+echo "Restarting systemd-resolved service ..."
+systemctl restart systemd-resolved
+
 consul services register -name prometheus -port 9090

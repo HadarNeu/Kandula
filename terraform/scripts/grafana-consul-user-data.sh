@@ -167,4 +167,10 @@ systemctl status --no-pager node_exporter
 sudo systemctl enable node_exporter
 sudo /bin/systemctl start grafana-server
 sudo /bin/systemctl status grafana-server
+
+sudo systemctl enable consul.service
+sudo systemctl restart consul.service
+echo "Restarting systemd-resolved service ..."
+systemctl restart systemd-resolved
+
 consul services register -name grafana -port 3000
