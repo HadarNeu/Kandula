@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: "Default"
+    folder: ''
+    updateIntervalSeconds: 10
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /home/ubuntu/Kandula/ansible-playbooks/dashboards

@@ -1,0 +1,21 @@
+---
+- name: Configure Grafana
+  hosts: tag_service_grafana
+  gather_facts: no
+  become: yes
+
+  tasks:
+    - name: Copy datasource configuration
+      copy:
+        src: /path/to/datasource.yaml
+        dest: /etc/grafana/provisioning/datasources/datasource.yaml
+
+    - name: Copy dashboard configuration
+      copy:
+        src: /path/to/dashboard.yaml
+        dest: /etc/grafana/provisioning/dashboards/dashboard.yaml
+
+    - name: Restart Grafana service
+      service:
+        name: grafana-server
+        state: restarted
