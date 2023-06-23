@@ -29,7 +29,7 @@ resource "aws_iam_policy" "consul-join" {
 }
 
 # Attach the policy
-resource "aws_iam_policy_attachment" "consul-join" {
+resource "aws_iam_policy_attachment" "consul-join-att-consul" {
   name       = "consul-join-kandula"
   roles      = [aws_iam_role.consul-join.name]
   policy_arn = aws_iam_policy.consul-join.arn
@@ -135,3 +135,42 @@ resource "aws_iam_policy_attachment" "ec2-full-att-ansible" {
   roles      = [aws_iam_role.ansible-role.name]
   policy_arn = aws_iam_policy.ec2-full-access.arn
 }
+
+# Attach the policy
+resource "aws_iam_policy_attachment" "consul-join-att-ansible" {
+  name       = "consul-join-att-ansible-kandula"
+  roles      = [aws_iam_role.ansible-role.name]
+  policy_arn = aws_iam_policy.consul-join.arn
+}
+
+
+########Grafana ##########
+
+# Create an IAM role for the grafana server
+# resource "aws_iam_role" "grafana-role" {
+#   name               = "role-grafana-kandula"
+#   assume_role_policy = file("${path.module}/policies/assume-role.json")
+#   tags = {
+#     "Name" = "role-grafana-${var.project_name}"
+#     "project" = "kandula"
+#     "owner" = "hadar"
+#     "env" = "prd"
+#     "resource" = "role"
+#   }
+# }
+
+# # Attach the policy
+# resource "aws_iam_policy_attachment" "consul-join-att-grafana" {
+#   name       = "consul-join-att-grafana-kandula"
+#   roles      = [aws_iam_role.grafana-join.name]
+#   policy_arn = aws_iam_policy.consul-join.arn
+# }
+
+# # Create the instance profile
+# resource "aws_iam_instance_profile" "grafana-consul-join" {
+#   name  = "profile-grafana-consul-join-kandula"
+#   role = aws_iam_role.consul-join.name
+# }
+
+# #######Prometheus ##########
+

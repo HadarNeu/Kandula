@@ -64,8 +64,9 @@ EOF
 
 echo "Updating /etc/resolv.conf ..."
 tee /etc/resolv.conf > /dev/null <<EOF
-nameserver 127.0.0.53
-options edns0 trust-ad
+[Resolve]
+DNS=127.0.0.1
+Domains=~consul
 EOF
 
 echo "Creating /etc/consul.d/consul.hcl ..."

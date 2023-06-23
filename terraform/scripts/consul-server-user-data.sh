@@ -64,8 +64,9 @@ EOF
 
 echo "Updating /etc/resolv.conf ..."
 tee /etc/resolv.conf > /dev/null <<EOF
-nameserver 127.0.0.53
-options edns0 trust-ad
+[Resolve]
+DNS=127.0.0.1
+Domains=~consul
 EOF
 
 echo "Creating /etc/consul.d/consul.hcl ..."
@@ -153,3 +154,6 @@ sudo systemctl start node_exporter
 systemctl status --no-pager node_exporter
 
 sudo systemctl enable node_exporter
+
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol udp --match udp --dport 53 --jump REDIRECT --to-ports 8600
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol tcp --match tcp --dport 53 --jump REDIRECT --to-ports 8600

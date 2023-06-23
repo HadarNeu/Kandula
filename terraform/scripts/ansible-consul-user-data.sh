@@ -64,8 +64,9 @@ EOF
 
 echo "Updating /etc/resolv.conf ..."
 tee /etc/resolv.conf > /dev/null <<EOF
-nameserver 127.0.0.53
-options edns0 trust-ad
+[Resolve]
+DNS=127.0.0.1
+Domains=~consul
 EOF
 
 echo "Creating /etc/consul.d/consul.hcl ..."
@@ -116,7 +117,10 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 sudo apt-get -y install unzip
 unzip awscliv2.zip
 sudo ./aws/install
-
+#install pip
+sudo apt install -y python3-pip
+pip install boto3
+pip install botocore
 # ------------------------------------
 # Node Exporter
 # ------------------------------------
