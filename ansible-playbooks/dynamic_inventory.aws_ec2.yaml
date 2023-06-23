@@ -12,5 +12,9 @@ keyed_groups:
   - key: tags.service
     separator: ''
 
+exclude_filters:
+  - tag:service:
+    - 'ansible'
+
 hostnames: network-interface.addresses.private-ip-address
 
