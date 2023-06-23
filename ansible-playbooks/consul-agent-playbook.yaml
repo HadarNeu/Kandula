@@ -1,10 +1,10 @@
 ---
 
-- hosts: 
+- hosts: tag_consul_true
   become: true
   vars:
     consul_version: "1.15.2"
-    ansible_ssh_private_key_file: "/home/ubuntu/.ssh/opsschool_consul_key.pem"
+    # ansible_ssh_private_key_file: "/home/ubuntu/.ssh/opsschool_consul_key.pem"
 
   tasks:
     - name: Add universe repository

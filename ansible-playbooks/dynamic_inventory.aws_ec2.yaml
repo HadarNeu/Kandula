@@ -2,10 +2,15 @@
 plugin: aws_ec2
 
 regions:
-  - us-east-1
+  - us-west-2
 filters:
   instance-state-name : running
-  tag:consul_server:
-    - "true"
+
+keyed_groups:
+  - prefix: tag
+    key: tags
+  - key: tags.service
+    separator: ''
 
 hostnames: network-interface.addresses.private-ip-address
+
