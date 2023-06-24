@@ -43,8 +43,6 @@
         dest: /etc/filebeat/filebeat.yml
         mode: '0644'
 
-    - name: Reload systemd daemon
-      command: sudo systemctl daemon-reload
 
     - name: Enable Filebeat service
       service:
