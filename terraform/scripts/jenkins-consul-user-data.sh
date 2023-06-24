@@ -56,10 +56,8 @@ EOF
 echo "Creating /etc/systemd/resolved.conf ..."
 tee /etc/systemd/resolved.conf > /dev/null <<EOF
 [Resolve]
-DNS=127.0.0.1:8600
-DNSSEC=false
+DNS=127.0.0.1
 Domains=~consul
-FallbackDNS=10.250.0.2
 EOF
 
 echo "Updating /etc/resolv.conf ..."
@@ -144,8 +142,20 @@ rm -rf /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz \
 
 sudo systemctl daemon-reload
 
-sudo systemctl start node_exporter
-
 systemctl status --no-pager node_exporter
 
 sudo systemctl enable node_exporter
+
+sudo systemctl start node_exporter
+
+
+sudo systemctl enable consul.service
+sudo systemctl restart consul.service
+echo "Restarting systemd-resolved service ..."
+systemctl restart systemd-resolved
+
+
+consul services register -name jenkins -port 8080
+
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol udp --match udp --dport 53 --jump REDIRECT --to-ports 8600
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol tcp --match tcp --dport 53 --jump REDIRECT --to-ports 8600

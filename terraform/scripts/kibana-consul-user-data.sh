@@ -82,9 +82,9 @@ retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_va
 server = false
 node_name = "kibana-$INSTANCE_ID-kandula"
 check = {
-  id = "ssh"
-  name = "SSH TCP on port 22"
-  tcp = "localhost:22"
+  id = "api"
+  name = "api http port 5601"
+  tcp = "localhost:5601"
   interval = "10s"
   timeout = "1s"
 }
@@ -106,6 +106,13 @@ systemctl restart systemd-resolved
 wget https://artifacts.elastic.co/downloads/kibana/kibana-oss-7.10.2-amd64.deb
 sudo dpkg -i kibana-*.deb
 echo 'server.host: "0.0.0.0"' > /etc/kibana/kibana.yml
+echo elasticsearch.hosts: ["http://elastic.service.consul:9200"] >> /etc/kibana/kibana.yml
+
+tee /etc/kibana/kibana.yml > /dev/null <<EOF
+server.port: 5601
+server.host: "localhost"
+elasticsearch.hosts: ["http://elastic.service.consul:9200"]
+EOF
 sudo systemctl enable kibana
 sudo systemctl start kibana
 
@@ -153,11 +160,17 @@ rm -rf /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz \
 
 sudo systemctl daemon-reload
 
-sudo systemctl start node_exporter
-
 systemctl status --no-pager node_exporter
 
 sudo systemctl enable node_exporter
+sudo systemctl start node_exporter
+
+sudo systemctl enable consul.service
+sudo systemctl restart consul.service
+echo "Restarting systemd-resolved service ..."
+systemctl restart systemd-resolved
+
+consul services register -name kibana -port 5601
 
 sudo iptables --table nat --append OUTPUT --destination localhost --protocol udp --match udp --dport 53 --jump REDIRECT --to-ports 8600
 sudo iptables --table nat --append OUTPUT --destination localhost --protocol tcp --match tcp --dport 53 --jump REDIRECT --to-ports 8600
