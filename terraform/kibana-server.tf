@@ -4,14 +4,16 @@ resource "aws_instance" "kibana_server" {
   ami = data.aws_ami.ubuntu-ami.id
   instance_type = var.kibana_instance_type
   key_name = var.key_name
-  subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
-  associate_public_ip_address = false
+#   subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
+#   associate_public_ip_address = false
+  subnet_id                   = module.kandula-vpc.public_subnets_id[count.index]
+  associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.kibana-server-sg.id]
   user_data            = file("${path.module}/scripts/kibana-consul-user-data.sh")
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
   metadata_options {
     http_endpoint = "enabled"
-      instance_metadata_tags = "enabled"
+    instance_metadata_tags = "enabled"
   }
 
   tags = {
