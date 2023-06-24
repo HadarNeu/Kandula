@@ -1,0 +1,47 @@
+- hosts: tag_consul_agent_true
+  become: true
+  vars:
+    consul_version: "1.15.2"
+
+  tasks:
+    - name: Configure systemd-resolved
+      copy:
+        dest: "/etc/systemd/resolved.conf"
+        content: |
+          [Resolve]
+          DNS=127.0.0.1:8600
+          DNSSEC=false
+          Domains=~consul
+          FallbackDNS=10.250.0.2
+
+    - name: Configure resolv.conf
+      copy:
+        dest: "/etc/resolv.conf"
+        content: |
+          [Resolve]
+          DNS=127.0.0.1
+          Domains=~consul
+
+    - name: Reload systemd configuration
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start consul service
+      systemd:
+        name: consul.service
+        enabled: yes
+        state: started
+
+    - name: Enable and start consul service
+      systemd:
+        name: systemd-resolved.service
+        enabled: yes
+        state: started
+
+    - name: Add iptables rule for UDP port 53
+      command: iptables --table nat --append OUTPUT --destination localhost --protocol udp --match udp --dport 53 --jump REDIRECT --to-ports 8600
+      ignore_errors: yes
+
+    - name: Add iptables rule for TCP port 53
+      command: iptables --table nat --append OUTPUT --destination localhost --protocol tcp --match tcp --dport 53 --jump REDIRECT --to-ports 8600
+      ignore_errors: yes

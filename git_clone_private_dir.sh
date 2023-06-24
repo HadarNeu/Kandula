@@ -15,3 +15,9 @@ cd $DEST_DIR
 pwd
 git sparse-checkout set --no-cone $SPECIFIC_FOLDER
 git checkout
+
+
+git config --global user.email "hadar@noylander@gmail.com"
+git config --global user.name "hadarneu"
+
+# git config --global user.email "hadar@noylander@gmail.com" && git config --global user.name "hadarneu"

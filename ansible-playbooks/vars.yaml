@@ -1,0 +1,5 @@
+---
+# in the above example, this would be vars/external_vars.yml
+grafana_api_url: "http://grafana.service.consul:3000"
+grafana_user: admin
+grafana_password: admin
