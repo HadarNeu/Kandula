@@ -1,0 +1,60 @@
+- name: Download and extract Filebeat
+  hosts: tag_service_kibana, tag_service_elastic #, tag_service_consul_server
+  become: true
+  vars:
+    filebeat_version: "7.11.0"
+  tasks:
+    # - name: Download Filebeat tarball
+    #   command: curl -LO "https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.8.1-linux-x86_64.tar.gz"
+
+
+    # - name: Extract Filebeat tarball
+    #   command: "tar xzvf filebeat-8.8.1-linux-x86_64.tar.gz"
+
+    # - name: Create /etc/filebeat directory
+    #   file:
+    #     path: /etc/filebeat
+    #     state: directory
+    #     mode: "0755"
+
+    # - name: Copy filebeat config to /etc/filebeat/filebeat.yml
+    #   copy:
+    #     src: /home/ubuntu/Kandula/ansible-playbooks/filebeat/filebeat.yaml
+    #     dest: /etc/filebeat/filebeat.yml
+
+    # - name: Change to Filebeat directory
+    #   shell: cd filebeat-8.8.1-linux-x86_64
+
+    # - name: Enable system module
+    #   shell: ./filebeat modules enable system
+
+    # - name: Run Filebeat setup
+    #   shell: ./filebeat setup -e
+
+    - name: Download Filebeat tarball
+      command: wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-{{ filebeat_version }}-amd64.deb
+    
+    - name: Install Filebeat package
+      shell: dpkg -i filebeat-oss-7.11.0-amd64.deb
+   
+    - name: Copy new Filebeat configuration
+      copy:
+        src: /home/ubuntu/Kandula/ansible-playbooks/filebeat/filebeat.yaml
+        dest: /etc/filebeat/filebeat.yml
+        mode: '0644'
+
+    - name: Reload systemd daemon
+      command: sudo systemctl daemon-reload
+
+    - name: Enable Filebeat service
+      service:
+        name: filebeat
+        enabled: yes
+
+    - name: Start Filebeat service
+      service:
+        name: "filebeat"
+        state: "started"
+        enabled: true
+
+

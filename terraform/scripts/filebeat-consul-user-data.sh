@@ -140,7 +140,7 @@ processors:
   - add_cloud_metadata: ~
 
 output.elasticsearch:
-  hosts: [ "localhost:9200" ]
+  hosts: [ "elastic.service.consul:9200" ]
   index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
 ## OR
 #output.logstash:
