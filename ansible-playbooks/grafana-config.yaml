@@ -12,8 +12,8 @@
 
     - name: Copy dashboard configuration
       copy:
-        src: /home/ubuntu/Kandula/ansible-playbooks/dashboards.yaml
-        dest: /etc/grafana/provisioning/dashboards/dashboard.yaml
+        src: /home/ubuntu/Kandula/ansible-playbooks/dashboards/
+        dest: /etc/grafana/provisioning/dashboards/
 
     - name: Restart Grafana service
       service:

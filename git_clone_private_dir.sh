@@ -19,3 +19,5 @@ git checkout
 
 git config --global user.email "hadar@noylander@gmail.com"
 git config --global user.name "hadarneu"
+
+# git config --global user.email "hadar@noylander@gmail.com" && git config --global user.name "hadarneu"

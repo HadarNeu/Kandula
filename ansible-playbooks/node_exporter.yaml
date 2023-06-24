@@ -1,0 +1,67 @@
+---
+- name: Install and configure Node Exporter
+  hosts: all
+  become: true
+  vars:
+    node_exporter_ver: 1.6.0
+  tasks:
+    - name: Download Node Exporter archive
+      get_url:
+        url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_ver }}/node_exporter-{{ node_exporter_ver }}.linux-amd64.tar.gz"
+        dest: "/tmp/node_exporter-{{ node_exporter_ver }}.linux-amd64.tar.gz"
+
+    - name: Extract Node Exporter archive
+      unarchive:
+        src: "/tmp/node_exporter-{{ node_exporter_ver }}.linux-amd64.tar.gz"
+        dest: "/tmp"
+        remote_src: true
+
+    - name: Copy Node Exporter binary
+      copy:
+        src: "/tmp/node_exporter-{{ node_exporter_ver }}.linux-amd64/node_exporter"
+        dest: "/usr/local/bin/node_exporter"
+        mode: "0755"
+
+    - name: Create Node Exporter user
+      user:
+        name: "node_exporter"
+        shell: "/bin/false"
+        system: true
+
+    - name: Set ownership of Node Exporter binary
+      file:
+        path: "/usr/local/bin/node_exporter"
+        owner: "node_exporter"
+        group: "node_exporter"
+
+    - name: Create directory for Node Exporter textfile collector
+      file:
+        path: "/var/lib/node_exporter/textfile_collector"
+        state: "directory"
+        owner: "node_exporter"
+        group: "node_exporter"
+
+    - name: Create systemd unit file for Node Exporter
+      template:
+        src: "node_exporter.service.j2"
+        dest: "/etc/systemd/system/node_exporter.service"
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Check Node Exporter service status
+      command: "systemctl status --no-pager node_exporter"
+      register: node_exporter_status
+      changed_when: false
+
+    - name: Enable Node Exporter service on boot
+      systemd:
+        name: "node_exporter"
+        enabled: yes
+
+    - name: Start Node Exporter service
+      service:
+        name: "node_exporter"
+        state: "started"
+        enabled: true
