@@ -106,8 +106,15 @@ systemctl restart systemd-resolved
 # ------------------------------------
 
 
-curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.8.1-linux-x86_64.tar.gz
-tar xzvf filebeat-8.8.1-linux-x86_64.tar.gz
+# curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.8.1-linux-x86_64.tar.gz
+# tar xzvf filebeat-8.8.1-linux-x86_64.tar.gz
+
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+sudo apt-get install apt-transport-https
+echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-8.x.list
+sudo apt-get update && sudo apt-get install filebeat
+sudo systemctl enable filebeat
+sudo systemctl start filebeat
 
 : '
 sudo cat <<\EOF > /etc/filebeat/filebeat.yml

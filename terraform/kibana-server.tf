@@ -63,6 +63,17 @@ resource "aws_security_group_rule" "kibana_node_exporter_access" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
+resource "aws_security_group_rule" "elastic_kibana_access" {
+  description       = "allow http access from anywhere"
+  from_port         = 9200
+  protocol          = "tcp"
+  security_group_id = aws_security_group.kibana-server-sg.id
+  to_port           = 9200
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
 
 resource "aws_security_group_rule" "kibana_ssh_access" {
   description       = "allow ssh access from anywhere"
