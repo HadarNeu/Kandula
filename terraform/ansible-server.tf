@@ -89,3 +89,13 @@ resource "aws_security_group_rule" "ansible_icmp_access" {
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
 }
+
+resource "aws_security_group_rule" "ansible_node_expoter_access" {
+  description       = "allow http access from anywhere"
+  from_port         = 9100
+  protocol          = "tcp"
+  security_group_id = aws_security_group.ansible_sg.id
+  to_port           = 9100
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}

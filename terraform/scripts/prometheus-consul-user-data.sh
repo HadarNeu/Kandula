@@ -178,7 +178,9 @@ scrape_configs:
     scrape_interval: 15s
     static_configs:
       - targets: 
-        - 'localhost:9100'
+        - 'consul.service.consul:9100'
+        - 'grafana.service.consul:9100'
+        - 'prometheus.service.consul:9100'
 EOF
 
 # systemd
@@ -244,3 +246,6 @@ echo "Restarting systemd-resolved service ..."
 systemctl restart systemd-resolved
 
 consul services register -name prometheus -port 9090
+
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol udp --match udp --dport 53 --jump REDIRECT --to-ports 8600
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol tcp --match tcp --dport 53 --jump REDIRECT --to-ports 8600

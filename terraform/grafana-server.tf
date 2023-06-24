@@ -103,6 +103,17 @@ resource "aws_security_group_rule" "grafana_consul_serf_lan_access" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
+resource "aws_security_group_rule" "grafana_node_expoter_access" {
+  description       = "allow http access from anywhere"
+  from_port         = 9100
+  protocol          = "tcp"
+  security_group_id = aws_security_group.grafana-server-sg.id
+  to_port           = 9100
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
 resource "aws_security_group_rule" "grafana_outbound_anywhere" {
   description       = "allow outbound traffic to anywhere"
   from_port         = 0
