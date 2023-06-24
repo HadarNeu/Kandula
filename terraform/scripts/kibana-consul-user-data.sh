@@ -110,7 +110,7 @@ echo elasticsearch.hosts: ["http://elastic.service.consul:9200"] >> /etc/kibana/
 
 tee /etc/kibana/kibana.yml > /dev/null <<EOF
 server.port: 5601
-server.host: "localhost"
+server.host: "0.0.0.0"
 elasticsearch.hosts: ["http://elastic.service.consul:9200"]
 EOF
 sudo systemctl enable kibana
