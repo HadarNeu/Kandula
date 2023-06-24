@@ -10,7 +10,6 @@ resource "aws_lb" "consul_alb" {
   subnets = [
     module.kandula-vpc.public_subnets_id[0],
     module.kandula-vpc.public_subnets_id[1]
-
   ]
   tags = {
     "Name" = "alb-consul-${var.project_name}"
