@@ -56,10 +56,8 @@ EOF
 echo "Creating /etc/systemd/resolved.conf ..."
 tee /etc/systemd/resolved.conf > /dev/null <<EOF
 [Resolve]
-DNS=127.0.0.1:8600
-DNSSEC=false
+DNS=127.0.0.1
 Domains=~consul
-FallbackDNS=10.250.0.2
 EOF
 
 echo "Updating /etc/resolv.conf ..."
