@@ -10,7 +10,7 @@
 #   user_data            = file("${path.module}/scripts/jenkins-consul-user-data.sh")
 #   iam_instance_profile   = aws_iam_instance_profile.jenkins-server.name
 # #   metadata_options {
-    # http_endpoint = "enabled"
+#     http_endpoint = "enabled"
 #       instance_metadata_tags = "enabled"
 #   }
 
