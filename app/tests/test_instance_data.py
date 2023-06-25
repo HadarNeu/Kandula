@@ -23,7 +23,7 @@ def aws_credentials():
     os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
     os.environ['AWS_SECURITY_TOKEN'] = 'testing'
     os.environ['AWS_SESSION_TOKEN'] = 'testing'
-    os.environ['AWS_DEFAULT_REGION'] = 'us-east-1'
+    os.environ['AWS_DEFAULT_REGION'] = 'us-west-2'
 
     yield aws_credentials
 
@@ -49,7 +49,7 @@ def test_should_get_single_instance_when_found(fake_ec2_client):
         'Instances': [
             {
                 'Cloud': 'aws',
-                'Region': 'us-east-1',
+                'Region': 'us-west-2',
                 'Id': expected_instance['InstanceId'],
                 'Type': expected_instance['InstanceType'],
                 'ImageId': expected_instance['ImageId'],
@@ -82,7 +82,7 @@ def test_should_get_multiple_instances_in_different_state(fake_ec2_client):
         'Instances': [
             {
                 'Cloud': 'aws',
-                'Region': 'us-east-1',
+                'Region': 'us-west-2',
                 'Id': first_expected_instance['InstanceId'],
                 'Type': first_expected_instance['InstanceType'],
                 'ImageId': first_expected_instance['ImageId'],
@@ -104,7 +104,7 @@ def test_should_get_multiple_instances_in_different_state(fake_ec2_client):
             },
             {
                 'Cloud': 'aws',
-                'Region': 'us-east-1',
+                'Region': 'us-west-2',
                 'Id': second_expected_instance['InstanceId'],
                 'Type': second_expected_instance['InstanceType'],
                 'ImageId': second_expected_instance['ImageId'],

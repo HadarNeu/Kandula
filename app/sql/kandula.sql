@@ -14,5 +14,6 @@ DO $$BEGIN
     END IF;
 END$$;
 
+GRANT usage on schema kandula to kandula_user;
 -- Grant SELECT, INSERT, UPDATE, DELETE privileges on all tables in the "kandula" schema to the "kandula_user" application user
 GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA kandula TO kandula_user;
