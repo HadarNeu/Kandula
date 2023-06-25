@@ -5,10 +5,10 @@ output "region" {
   value       = var.aws_region
 }
 
-# output "cluster_name" {
-#   description = "EKS Cluster Name ***IMPORTANT****"
-#   value       = local.cluster_name
-# }
+output "cluster_name" {
+  description = "EKS Cluster Name ***IMPORTANT****"
+  value       = local.cluster_name
+}
 
 output "vpc-name" {
   description = "The name of the VPC "
@@ -45,18 +45,18 @@ output "ansible_public_ip_temp" {
   value = aws_instance.ansible_server.*.public_ip
 }
 
-# output "jenkins_alb_dns" {
-#   description = "The DNS of the consul load balancer we created"
-#   value = aws_lb.jenkins_alb.dns_name
-# }
+output "jenkins_alb_dns" {
+  description = "The DNS of the consul load balancer we created"
+  value = aws_lb.jenkins_alb.dns_name
+}
 
-# output "jenkins-ui-url" {
-#   description = "The A record used for jenkins UI"
-#   value = var.jenkins-ui-url
-# }
+output "jenkins-ui-url" {
+  description = "The A record used for jenkins UI"
+  value = var.jenkins-ui-url
+}
 
-# output "jenkins-sg" {
-#   description = "The sg of jenkins-for cloud configuration"
-#   value = aws_security_group.jenkins-servers-sg.id
-# }
+output "jenkins-sg" {
+  description = "The sg of jenkins-for cloud configuration"
+  value = aws_security_group.jenkins-servers-sg.id
+}
 
