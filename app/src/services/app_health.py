@@ -20,7 +20,7 @@ def check_db_connection():
     try:
         # Get the connection configuration
         # Load environment variables from .env file
-        load_dotenv(r'app\src\services\config.env')
+        load_dotenv(r'app/src/services/config.env') 
 
         # Access the environment variables
         db_host = os.environ.get('DB_HOST')
