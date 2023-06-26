@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: dnsutils
+  namespace: kandula
+spec:
+  containers:
+    - name: dnsutils
+      image: gcr.io/kubernetes-e2e-test-images/dnsutils:1.3de
+      imagePullPolicy: IfNotPresent
+  restartPolicy: Always
