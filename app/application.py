@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 from flask import Flask
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap4
 
 from .containers import Container
 from .utils.app_logging import init_logging
@@ -47,7 +47,7 @@ def create_app() -> Flask:
             today_scheduling_time = now.replace(second=0, microsecond=0, minute=0, hour=hour)
             return today_scheduling_time.strftime("%d/%m/%y %H:%M:%S")
 
-    bootstrap = Bootstrap()
+    bootstrap = Bootstrap4()
     bootstrap.init_app(app)
 
     return app
