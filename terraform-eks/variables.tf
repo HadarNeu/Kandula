@@ -68,4 +68,10 @@ variable "key_name" {
   type        = string
 }
 
+variable "rds-identifier" {
+  description = "The name of the db instance"
+  default     = "rds-postgres-kandula"
+  type        = string
+}
+
 

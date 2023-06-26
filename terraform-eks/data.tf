@@ -33,10 +33,10 @@ data "aws_subnets" "private" {
     values = ["kandula"]
   }
 
-  # filter {
-  #   name = "vpc-id"
-  #   values = ["${data.aws_vpc.kandula-vpc.id}"]
-  # }
 }
+
+# data "aws_db_instance" "rds-kandula" {
+#   db_instance_identifier = var.rds-
+# }
 
 

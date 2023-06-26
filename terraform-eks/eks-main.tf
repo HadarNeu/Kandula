@@ -63,6 +63,15 @@ resource "aws_security_group" "eks-worker-sg" {
 
 resource "aws_security_group_rule" "eks_consul_dns_access" {
   description       = "allow comsul dns access from anywhere"
+  from_port         = 8500
+  protocol          = "tcp"
+  security_group_id = aws_security_group.eks-worker-sg.id
+  to_port           = 8500
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+resource "aws_security_group_rule" "eks_consul_ui_access" {
+  description       = "allow comsul access from anywhere"
   from_port         = 8600
   protocol          = "tcp"
   security_group_id = aws_security_group.eks-worker-sg.id
@@ -87,6 +96,16 @@ resource "aws_security_group_rule" "eks_consul_serf_lan_access" {
   protocol          = "tcp"
   security_group_id = aws_security_group.eks-worker-sg.id
   to_port           = 8301
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "postgres_eks_access" {
+  description       = "allow postgres access from anywhere- used to handle gossip"
+  from_port         = 5432
+  protocol          = "tcp"
+  security_group_id = aws_security_group.eks-worker-sg.id
+  to_port           = 5432
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
 }
