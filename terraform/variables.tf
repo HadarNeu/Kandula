@@ -126,13 +126,13 @@ variable "ansible_instance_type" {
   type        = string
 }
 
-########ELASTIC################
-variable "elastic_instances_count" {
+########ELK################
+variable "elk_instances_count" {
   description = "The number of bastion instances to create"
   default     = 1
 }
 
-variable "elastic_instance_type" {
+variable "elk_instance_type" {
   description = "The type of the ec2"
   default     = "t3.small"
   type        = string
@@ -150,17 +150,6 @@ variable "fluentd_instance_type" {
   type        = string
 }
 
-########KIBANA################
-variable "kibana_instances_count" {
-  description = "The number of bastion instances to create"
-  default     = 1
-}
-
-variable "kibana_instance_type" {
-  description = "The type of the ec2"
-  default     = "t3.small"
-  type        = string
-}
 
 ########GRAFANA################
 variable "grafana_instances_count" {
