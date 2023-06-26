@@ -107,8 +107,24 @@ curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add
 echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
 sudo apt update
 sudo apt -y install elasticsearch
+
+tee /etc/elasticsearch/elasticsearch.yml > /dev/null <<EOF
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+# network.host: kibana.service.consul DIDNT WORK - error- failed to bind
+network.host: 0.0.0.0
+# By default Elasticsearch listens for HTTP traffic on the first free port it
+# finds starting at 9200. Set a specific HTTP port here:
+http.port: 9200
+discovery.seed_hosts: ["127.0.0.1", "[::1]"]
+cluster.initial_master_nodes: ["node-1"]
+EOF
+
+
 sudo systemctl start elasticsearch
 sudo systemctl enable elasticsearch
+
+
 
 # ------------------------------------
 # Node Exporter
