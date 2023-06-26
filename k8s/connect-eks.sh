@@ -1,0 +1,1 @@
+aws eks --profile ec2admin --region us-west-2 update-kubeconfig --name "eks-cluster-kandula"
