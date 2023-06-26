@@ -2,6 +2,8 @@
 set -e
 
 echo "INFO: userdata started"
+sudo apt update
+sudo apt install -y nginx
 
 # elasticsearch
 wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.10.2-amd64.deb
@@ -13,6 +15,7 @@ systemctl start elasticsearch
 wget https://artifacts.elastic.co/downloads/kibana/kibana-oss-7.10.2-amd64.deb
 dpkg -i kibana-*.deb
 echo 'server.host: "0.0.0.0"' > /etc/kibana/kibana.yml
+echo elasticsearch.hosts: ["http://localhost:9200"] >> /etc/kibana/kibana.yml
 systemctl enable kibana
 systemctl start kibana
 
@@ -23,7 +26,11 @@ dpkg -i filebeat-*.deb
 
 sudo mv /etc/filebeat/filebeat.yml /etc/filebeat/filebeat.yml.BCK
 
-cat <<\EOF > /etc/filebeat/filebeat.yml
+sudo tee /etc/filebeat/filebeat.yml > /dev/null <<EOF
+path.home : /usr/share/filebeat
+path.config : /etc/filebeat
+path.data : /var/lib/filebeat
+path.logs : /var/log/filebeat
 filebeat.inputs:
   - type: log
     enabled: false
@@ -36,6 +43,11 @@ filebeat.modules:
       enabled: false
     auth:
       enabled: false
+
+  - module: nginx
+    access:
+      enabled: true
+      var.paths: ["/var/log/nginx/access.log*"] 
 
 filebeat.config.modules:
   path: ${path.config}/modules.d/*.yml
@@ -51,14 +63,18 @@ setup.template.settings:
 processors:
   - add_host_metadata:
       when.not.contains.tags: forwarded
-  - add_cloud_metadata: ~
+  - add_cloud_metadata: 
+      when.not.contains.tags: forwarded
 
 output.elasticsearch:
   hosts: [ "localhost:9200" ]
   index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
-## OR
-#output.logstash:
-#  hosts: [ "127.0.0.1:5044" ]
+setup.kibana:
+    host: "localhost:5601"
 EOF
 
-echo "INFO: userdata finished"
+
+sudo filebeat modules enable nginx
+sudo filebeat modules enable kibana
+sudo systemctl enable filebeat 
+sudo systemctl start filebeat

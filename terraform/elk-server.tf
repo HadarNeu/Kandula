@@ -17,7 +17,7 @@ resource "aws_instance" "elk_server" {
   }
 
   tags = {
-    Name = "elastic-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
+    Name = "elk-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
     "project" = "kandula"
     "owner" = "hadar"
     "env" = "prd"
@@ -73,6 +73,17 @@ resource "aws_security_group_rule" "elל_node_exporter_access" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
+resource "aws_security_group_rule" "kibana_elastic_access" {
+  description       = "allow http access from anywhere to API"
+  from_port         = 5601
+  protocol          = "tcp"
+  security_group_id = aws_security_group.elk-server-sg.id
+  to_port           = 5601
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+
 resource "aws_security_group_rule" "elk_ssh_acess" {
   description       = "allow ssh access from anywhere"
   from_port         = 22
@@ -111,6 +122,16 @@ resource "aws_security_group_rule" "elk_consul_serf_lan_access" {
   to_port           = 8301
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "elk_nginx_access" {
+  description       = "allow http access from home vpn"
+  from_port         = 80
+  protocol          = "tcp"
+  security_group_id = aws_security_group.elk-server-sg.id
+  to_port           = 80
+  type              = "ingress"
+  cidr_blocks       = ["212.199.61.110/32"]
 }
 
 resource "aws_security_group_rule" "elk_outbound_anywhere" {
