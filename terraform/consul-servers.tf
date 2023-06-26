@@ -122,15 +122,6 @@ resource "aws_security_group_rule" "consul_node_expoter_access" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-# resource "aws_security_group_rule" "kibana_elastic_access" {
-#   description       = "allow http access from anywhere"
-#   from_port         = 5601
-#   protocol          = "tcp"
-#   security_group_id = aws_security_group.elk-server-sg.id
-#   to_port           = 5601
-#   type              = "ingress"
-#   cidr_blocks       = ["0.0.0.0/0"]
-# }
 
 resource "aws_security_group_rule" "consul_servers_outbound_anywhere" {
   description       = "allow outbound traffic to anywhere"

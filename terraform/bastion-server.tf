@@ -12,8 +12,6 @@ resource "aws_instance" "bastion" {
       instance_metadata_tags = "enabled"
     }
       
-    
-
     provisioner "file" {
       source      = "${var.key_location}"
       destination = "${var.key_destination}"
