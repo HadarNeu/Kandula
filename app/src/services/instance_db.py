@@ -57,6 +57,10 @@ def get_scheduling():
     print(f"DB Name: {db_name}")
     print(f"DB User: {db_user}")
     print(f"DB Password: {db_password}")
+
+    instance_schedule = {
+        "Instances": []
+    }
     try:
         # params = get_db_config()
         query = "SELECT instance_id, shutdown_time FROM kandula.instances_scheduler"
@@ -69,8 +73,9 @@ def get_scheduling():
 
                 instances = []
                 for row in rows:
-                    instance = {"Id": row[0], "DailyShutdownHour": int(row[1][0:2])}
-                    instances.append(instance)
+                    # instance = {"Id": row[0], "DailyShutdownHour": int(row[1][0:2])}
+                    instance_schedule["Instances"].append({"Id": row[0], "DailyShutdownHour": int(row[1][0:2]) })
+                    # instances.append(instance)
         logger.info("create_scheduling was executed successfully")
 
     except psycopg2.Error as error:
@@ -79,10 +84,8 @@ def get_scheduling():
     except Exception as ex:
         logger.exception(ex)
 
-    # return instance_schedule
-    logger.debug(f"instances:{instances}")
-    print({"Instances": instances})
-    return {"Instances": instances}
+    # instance_schedule = {"Instances":instances}
+    return instance_schedule
 
 
 def create_scheduling(instance_id, shutdown_hour):
