@@ -6,7 +6,6 @@ import yaml
 default_file = "coredns-configmap-template.yaml"
 arg_place_holder = "<Consul ClusterIP IP>"
 
-
 def replace_forward_ip(yaml_data, ip):
     corefile = yaml_data["data"]["Corefile"]
     corefile = corefile.replace(arg_place_holder, ip)
