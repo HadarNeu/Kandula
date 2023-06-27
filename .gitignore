@@ -6,6 +6,9 @@
 #SSH
 *.pem
 
+#k8s
+k8s/secret*
+
 #python virtual env
 venv1/*
 ansible-server/*
