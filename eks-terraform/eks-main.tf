@@ -15,7 +15,7 @@ module "eks" {
     "env" = "prd"
     "resource" = "eks-cluster"
     "service" = "k8s"
-    "consul" = "true"
+    
   }
 
   vpc_id = data.aws_vpc.kandula-vpc.id
@@ -33,6 +33,7 @@ module "eks" {
       max_size     = 6
       desired_size = 2
       instance_types = ["${var.group1_instance_type}"]
+      tags = {"consul" = "true"}
     }
 
     group_2 = {
@@ -40,7 +41,7 @@ module "eks" {
       max_size     = 6
       desired_size = 2
       instance_types = ["${var.group2_instance_type}"]
-
+      tags = {"consul" = "true"}
     }
   }
 }
@@ -106,6 +107,15 @@ resource "aws_security_group_rule" "postgres_eks_access" {
   protocol          = "tcp"
   security_group_id = aws_security_group.eks-worker-sg.id
   to_port           = 5432
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+resource "aws_security_group_rule" "eks_http_access" {
+  description       = "allow http access from anywhere"
+  from_port         = 8080
+  protocol          = "tcp"
+  security_group_id = aws_security_group.eks-worker-sg.id
+  to_port           = 8080
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
 }
