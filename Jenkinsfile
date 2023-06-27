@@ -18,7 +18,7 @@
 				// withAWS(region: '${AWS_DEFAULT_REGION}', credentials: 'my-aws-credentials') {
                     script {
                         env.DB_HOST = sh(
-                            script: "aws rds describe-db-instances --filters Name=tag:project,Values=kandula --query 'DBInstances[0].Endpoint.Address' --output text",
+                            script: "aws rds describe-db-instances --db-instance-identifier ${DB_INSTANCE_IDENTIFIER} --output text",
                             returnStdout: true
                         ).trim()
                     }
