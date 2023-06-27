@@ -97,8 +97,7 @@
 	        stage ("Display app link") {
                 steps {
 					withAWS(credentials:'aws-creds-hadarnoy') {
-						sh "export ALB=$(kubectl describe svc kandula-app-lb-service | grep 'LoadBalancer')"
-						sh "echo ALB"
+						sh "kubectl describe svc kandula-app-lb-service | grep 'LoadBalancer'"
 					}
                 }
             }
