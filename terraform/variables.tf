@@ -182,4 +182,10 @@ variable "prometheus_instance_type" {
   type        = string
 }
 
+#Kandula 
+ variable "kandula-ui-url" {
+  description = "The A record used for kandula UI"
+  default     = "kandula.hadar.infitest.net"
+  type        = string
+}
 

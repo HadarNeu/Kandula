@@ -67,7 +67,7 @@ resource "aws_security_group_rule" "ansible_ssh_access" {
   security_group_id = aws_security_group.ansible_sg.id
   to_port           = 22
   type              = "ingress"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = [var.vpn_endpoint]
 }
 
 resource "aws_security_group_rule" "ansible_outbound_anywhere" {

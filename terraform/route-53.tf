@@ -25,17 +25,12 @@ resource "aws_route53_record" "consul-dns" {
 }
 
 
-#####A record for Consul Server########
-resource "aws_route53_record" "consul-dns" {
+#####A record for Kandula Server########
+resource "aws_route53_record" "kandula-dns" {
   zone_id = data.aws_route53_zone.hosted-zone-hadar.zone_id
-  name    = var.consul-ui-url
+  name    = var.kandula-ui-url
   type    = "A"
 
-  alias {
-    name                   = aws_lb.consul_alb.dns_name
-    zone_id                = aws_lb.consul_alb.zone_id
-    evaluate_target_health = true
-  }
 }
 
 
