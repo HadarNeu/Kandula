@@ -6,32 +6,26 @@
 	        }
 	    }
 
-	    environment {
-        	DB_HOST = ""
-    	}
+	    // environment {
+        // 	DB_HOST = ""
+    	// }
 
 	    stages {
 	    
-		stage('Get RDS Endpoint') {
-            steps {
-                withAWS(credentials:'aws-creds-hadarnoy') {
-				// withAWS(region: '${AWS_DEFAULT_REGION}', credentials: 'my-aws-credentials') {
-                    script {
-                        env.DB_HOST = sh(
-                            script: "aws rds describe-db-instances --db-instance-identifier ${DB_INSTANCE_IDENTIFIER} --output text",
-                            returnStdout: true
-                        ).trim()
-                    }
-                }
-            }
-        }
+		// stage('Get RDS Endpoint') {
+        //     steps {
+        //         withAWS(credentials:'aws-creds-hadarnoy') {
+		// 		// withAWS(region: '${AWS_DEFAULT_REGION}', credentials: 'my-aws-credentials') {
+        //             script {
+        //                 env.DB_HOST = sh(
+        //                     script: "aws rds describe-db-instances --db-instance-identifier ${DB_INSTANCE_IDENTIFIER} --output text",
+        //                     returnStdout: true
+        //                 ).trim()
+        //             }
+        //         }
+        //     }
+        // }
 
-        stage('Print RDS Endpoint') {
-            steps {
-                echo "RDS Endpoint: ${DB_HOST}"
-                // Use the RDS_ENDPOINT variable in subsequent steps
-            }
-        }
         stage('Cloning Git') {
             steps {
                 git url: "${REPO_URL}", branch: 'local-ubuntu',
