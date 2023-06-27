@@ -56,16 +56,15 @@ EOF
 echo "Creating /etc/systemd/resolved.conf ..."
 tee /etc/systemd/resolved.conf > /dev/null <<EOF
 [Resolve]
-DNS=127.0.0.1:8600
-DNSSEC=false
+DNS=127.0.0.1
 Domains=~consul
-FallbackDNS=10.250.0.2
 EOF
 
 echo "Updating /etc/resolv.conf ..."
 tee /etc/resolv.conf > /dev/null <<EOF
-nameserver 127.0.0.53
-options edns0 trust-ad
+[Resolve]
+DNS=127.0.0.1
+Domains=~consul
 EOF
 
 echo "Creating /etc/consul.d/consul.hcl ..."
@@ -81,11 +80,11 @@ enable_syslog = true
 log_level = "info"
 retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_value=true"]
 server = false
-node_name = "filebeat-$INSTANCE_ID-kandula"
+node_name = "elastic-$INSTANCE_ID-kandula"
 check = {
-  id = "ssh"
-  name = "SSH TCP on port 22"
-  tcp = "localhost:22"
+  id = "kibana"
+  name = "http access to kibana on port 9200"
+  tcp = "localhost:9200"
   interval = "10s"
   timeout = "1s"
 }
@@ -101,50 +100,86 @@ systemctl restart systemd-resolved
 
 
 # ------------------------------------
-# Filebeat Setup
+# Elasticsearch Setup
 # ------------------------------------
 
+curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt update
+sudo apt -y install elasticsearch
 
-curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-8.8.1-linux-x86_64.tar.gz
-tar xzvf filebeat-8.8.1-linux-x86_64.tar.gz
-
-: '
-sudo cat <<\EOF > /etc/filebeat/filebeat.yml
-filebeat.inputs:
-  - type: log
-    enabled: false
-    paths:
-      - /var/log/auth.log
-
-filebeat.modules:
-  - module: system
-    syslog:
-      enabled: false
-    auth:
-      enabled: false
-
-filebeat.config.modules:
-  path: ${path.config}/modules.d/*.yml
-  reload.enabled: false
-
-setup.dashboards.enabled: false
-
-setup.template.name: "filebeat"
-setup.template.pattern: "filebeat-*"
-setup.template.settings:
-  index.number_of_shards: 1
-
-processors:
-  - add_host_metadata:
-      when.not.contains.tags: forwarded
-  - add_cloud_metadata: ~
-
-output.elasticsearch:
-  hosts: [ "elastic.service.consul:9200" ]
-  index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
-## OR
-#output.logstash:
-#  hosts: [ "127.0.0.1:5044" ]
+tee /etc/elasticsearch/elasticsearch.yml > /dev/null <<EOF
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+# network.host: kibana.service.consul DIDNT WORK - error- failed to bind
+network.host: 0.0.0.0
+# By default Elasticsearch listens for HTTP traffic on the first free port it
+# finds starting at 9200. Set a specific HTTP port here:
+http.port: 9200
+discovery.seed_hosts: ["127.0.0.1", "[::1]"]
+cluster.initial_master_nodes: ["node-1"]
 EOF
-'
-echo "INFO: userdata finished"
+
+
+sudo systemctl start elasticsearch
+sudo systemctl enable elasticsearch
+
+
+
+# ------------------------------------
+# Node Exporter
+# ------------------------------------
+
+node_exporter_ver="0.18.0"
+
+wget \
+  https://github.com/prometheus/node_exporter/releases/download/v$node_exporter_ver/node_exporter-$node_exporter_ver.linux-amd64.tar.gz \
+  -O /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz
+
+tar zxvf /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz
+
+sudo cp ./node_exporter-$node_exporter_ver.linux-amd64/node_exporter /usr/local/bin
+
+sudo useradd --no-create-home --shell /bin/false node_exporter
+
+sudo chown node_exporter:node_exporter /usr/local/bin/node_exporter
+
+sudo mkdir -p /var/lib/node_exporter/textfile_collector
+sudo chown node_exporter:node_exporter /var/lib/node_exporter
+sudo chown node_exporter:node_exporter /var/lib/node_exporter/textfile_collector
+
+sudo tee /etc/systemd/system/node_exporter.service &>/dev/null << EOF
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter --collector.textfile.directory /var/lib/node_exporter/textfile_collector \
+ --no-collector.infiniband
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+rm -rf /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz \
+  ./node_exporter-$node_exporter_ver.linux-amd64
+
+sudo systemctl daemon-reload
+systemctl status --no-pager node_exporter
+sudo systemctl enable node_exporter
+sudo systemctl start node_exporter
+
+sudo systemctl enable consul.service
+sudo systemctl restart consul.service
+echo "Restarting systemd-resolved service ..."
+systemctl restart systemd-resolved
+
+
+consul services register -name elastic -port 9200
+
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol udp --match udp --dport 53 --jump REDIRECT --to-ports 8600
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol tcp --match tcp --dport 53 --jump REDIRECT --to-ports 8600

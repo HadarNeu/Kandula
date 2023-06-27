@@ -4,11 +4,18 @@ resource "aws_instance" "prometheus_server" {
   ami = data.aws_ami.ubuntu-ami.id
   instance_type = var.prometheus_instance_type
   key_name = var.key_name
-  subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
-  associate_public_ip_address = false
+  # subnet_id                   = module.kandula-vpc.private_subnets_id[count.index]
+  # associate_public_ip_address = false
+  subnet_id                   = module.kandula-vpc.public_subnets_id[count.index]
+  associate_public_ip_address = true
   vpc_security_group_ids      = [aws_security_group.prometheus-server-sg.id]
   user_data            = file("${path.module}/scripts/prometheus-consul-user-data.sh")
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
+  metadata_options {
+    http_endpoint = "enabled"
+    instance_metadata_tags = "enabled"
+  }
+  
 
   tags = {
     Name = "prometheus-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
@@ -18,11 +25,11 @@ resource "aws_instance" "prometheus_server" {
     "resource" = "ec2"
     "service" = "prometheus"
     "consul" = "true"
+    "consul-agent" = "true"
   }
-
 }
 
-######Elastic SG############
+######Prometheus SG############
 resource "aws_security_group" "prometheus-server-sg" {
   vpc_id = module.kandula-vpc.vpc_id
   name   = "prometheus-server-sg-kandula"
@@ -36,12 +43,22 @@ resource "aws_security_group" "prometheus-server-sg" {
   }
 }
 
-resource "aws_security_group_rule" "prometheus_grafana_access" {
+resource "aws_security_group_rule" "prometheus_dashboard_access" {
   description       = "allow http access from anywhere"
   from_port         = 9090
   protocol          = "tcp"
   security_group_id = aws_security_group.prometheus-server-sg.id
   to_port           = 9090
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "prometheus_node_expoter_access" {
+  description       = "allow http access from anywhere"
+  from_port         = 9100
+  protocol          = "tcp"
+  security_group_id = aws_security_group.prometheus-server-sg.id
+  to_port           = 9100
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
 }

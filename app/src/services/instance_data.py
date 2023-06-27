@@ -1,5 +1,4 @@
 import boto3
-
 import logging
 
 REGION_NAME = 'us-west-2'
@@ -97,6 +96,8 @@ class InstanceData:
         instances_dict['Instances'] = instance_data_dict_list
         print(instances_dict)
         return instances_dict
+    
+
 
 ec2_client = boto3.client('ec2')
 idata = InstanceData(ec2_client)

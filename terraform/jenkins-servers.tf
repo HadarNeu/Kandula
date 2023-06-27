@@ -9,6 +9,10 @@ resource "aws_instance" "jenkins_server" {
   vpc_security_group_ids      = [aws_security_group.jenkins-servers-sg.id]
   user_data            = file("${path.module}/scripts/jenkins-consul-user-data.sh")
   iam_instance_profile   = aws_iam_instance_profile.jenkins-server.name
+  metadata_options {
+    http_endpoint = "enabled"
+    instance_metadata_tags = "enabled"
+  }
 
   tags = {
     Name = "jenkins-server-${regex(".$", data.aws_availability_zones.available.names[count.index])}-${var.project_name}"
@@ -18,6 +22,7 @@ resource "aws_instance" "jenkins_server" {
     "resource" = "ec2"
     "service" = "jenkins"
     "consul" = "true"
+    "consul-agent" = "true"
   }
 
 }

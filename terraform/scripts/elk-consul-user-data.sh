@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 export AWS_REGION=$(curl -s http://169.254.169.254/latest/meta-data/placement/region)
 export AWS_AZ=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
 export INSTANCE_ID=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
@@ -80,113 +80,88 @@ enable_syslog = true
 log_level = "info"
 retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_value=true"]
 server = false
-node_name = "prometheus-$INSTANCE_ID-kandula"
+node_name = "ansible-$INSTANCE_ID-kandula"
 check = {
-  id = "prometheus"
-  name = "prometheus dashboard"
-  tcp = "localhost:9090"
+  id = "ssh"
+  name = "SSH TCP on port 22"
+  tcp = "localhost:22"
   interval = "10s"
   timeout = "1s"
 }
 EOF
 
+set -e
 
-echo "Enable & restart consul service ..."
-sudo systemctl daemon-reload
-sudo systemctl enable consul.service
-sudo systemctl restart consul.service
-echo "Restarting systemd-resolved service ..."
-systemctl restart systemd-resolved
-
-
-# ------------------------------------
-# Prometheus Setup
-# ------------------------------------
-
-sudo apt update && apt upgrade
+echo "INFO: userdata started"
+sudo apt update
 sudo apt install -y nginx
-sudo systemctl enable nginx.service
-sudo systemctl start nginx.service
-sudo systemctl status nginx.service
-sudo groupadd prometheus
-sudo useradd -s /sbin/nologin --system -g prometheus prometheus
-sudo mkdir /var/lib/prometheus
-for i in rules rules.d files_sd; do sudo mkdir -p /etc/prometheus/${i}; done
-sudo apt install curl
-mkdir -p /tmp/prometheus
-cd /tmp/prometheus
-sudo wget https://github.com/prometheus/prometheus/releases/download/v2.44.0/prometheus-2.44.0.linux-amd64.tar.gz
-sudo tar xvf prometheus*.tar.gz
-cd /tmp/prometheus/prometheus-2.44.0.linux-amd64
-sudo mv prometheus promtool /usr/local/bin/
-sudo mv prometheus.yml /etc/prometheus/prometheus.yml
-sudo mv consoles/ console_libraries/ /etc/prometheus/
-cat /etc/prometheus/prometheus.yml
-#now you configure prometheus
 
-sudo touch /etc/systemd/system/prometheus.service
+# elasticsearch
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-oss-7.10.2-amd64.deb
+dpkg -i elasticsearch-*.deb
 
-sudo tee /etc/systemd/system/prometheus.service &>/dev/null << EOF
-[Unit]
-Description=Prometheus
-Wants=network-online.target
-After=network-online.target
 
-[Service]
-User=root
-Group=root
-Type=simple
-ExecStart=/usr/local/bin/prometheus \
-    --config.file /etc/prometheus/prometheus.yml \
-    --storage.tsdb.path /var/lib/prometheus/ \
-    --web.console.templates=/etc/prometheus/consoles \
-    --web.console.libraries=/etc/prometheus/console_libraries
+# kibana
+wget https://artifacts.elastic.co/downloads/kibana/kibana-oss-7.10.2-amd64.deb
+dpkg -i kibana-*.deb
+echo 'server.host: "0.0.0.0"' > /etc/kibana/kibana.yml
+echo elasticsearch.hosts: ["http://localhost:9200"] >> /etc/kibana/kibana.yml
 
-[Install]
-WantedBy=multi-user.target
+
+# filebeat
+wget https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-7.11.0-amd64.deb
+dpkg -i filebeat-*.deb
+
+
+sudo mv /etc/filebeat/filebeat.yml /etc/filebeat/filebeat.yml.BCK
+
+sudo tee /etc/filebeat/filebeat.yml > /dev/null <<EOF
+path.home : /usr/share/filebeat
+path.config : /etc/filebeat
+path.data : /var/lib/filebeat
+path.logs : /var/log/filebeat
+filebeat.inputs:
+  - type: log
+    enabled: false
+    paths:
+      - /var/log/auth.log
+
+filebeat.modules:
+  - module: system
+    syslog:
+      enabled: false
+    auth:
+      enabled: false
+
+  - module: nginx
+    access:
+      enabled: true
+      var.paths: ["/var/log/nginx/access.log*"] 
+
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
+setup.dashboards.enabled: false
+
+setup.template.name: "filebeat"
+setup.template.pattern: "filebeat-*"
+setup.template.settings:
+  index.number_of_shards: 1
+
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: 
+      when.not.contains.tags: forwarded
+
+output.elasticsearch:
+  hosts: [ "localhost:9200" ]
+  index: "filebeat-%{[agent.version]}-%{+yyyy.MM.dd}"
+setup.kibana:
+    host: "localhost:5601"
 EOF
 
-sudo tee /etc/prometheus/prometheus.yml &>/dev/null << EOF
-global:
-  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
-  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.
-  # scrape_timeout is set to the global default (10s).
-  external_labels:
-    monitor: 'prometheus'
-
-# Alertmanager configuration
-alerting:
-  alertmanagers:
-  - static_configs:
-    - targets:
-      # - alertmanager:9093
-
-scrape_configs:
-  # scraping itself
-  - job_name: 'prometheus'
-    static_configs:
-    - targets: ['localhost:9090']
-
-  # - job_name: 'node'
-  #   ec2_sd_configs:
-  #     - region: us-east-2
-  #       access_key: yourkey
-  #       secret_key: yourkey
-  #       port: 9100
-
-  - job_name: 'node_exporter'
-    scrape_interval: 15s
-    static_configs:
-      - targets: 
-        - 'consul.service.consul:9100'
-        - 'grafana.service.consul:9100'
-        - 'prometheus.service.consul:9100'
-EOF
-
-# systemd
-sudo systemctl daemon-reload
-sudo systemctl enable prometheus
-sudo systemctl start prometheus
 
 # ------------------------------------
 # Node Exporter
@@ -231,21 +206,25 @@ rm -rf /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz \
   ./node_exporter-$node_exporter_ver.linux-amd64
 
 sudo systemctl daemon-reload
-
+systemctl enable elasticsearch
+systemctl start elasticsearch
+systemctl enable kibana
+systemctl start kibana
 sudo systemctl start node_exporter
-
 systemctl status --no-pager node_exporter
-
 sudo systemctl enable node_exporter
-
-sudo systemctl start prometheus && sudo systemctl status prometheus
-
 sudo systemctl enable consul.service
 sudo systemctl restart consul.service
 echo "Restarting systemd-resolved service ..."
 systemctl restart systemd-resolved
+sudo filebeat modules enable nginx
+sudo filebeat modules enable kibana
+sudo systemctl enable filebeat 
+sudo systemctl start filebeat
 
-consul services register -name prometheus -port 9090
+consul services register -name kibana -port 5601
+consul services register -name elastic -port 9200
 
 sudo iptables --table nat --append OUTPUT --destination localhost --protocol udp --match udp --dport 53 --jump REDIRECT --to-ports 8600
 sudo iptables --table nat --append OUTPUT --destination localhost --protocol tcp --match tcp --dport 53 --jump REDIRECT --to-ports 8600
+

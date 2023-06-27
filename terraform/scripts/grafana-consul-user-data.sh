@@ -56,16 +56,15 @@ EOF
 echo "Creating /etc/systemd/resolved.conf ..."
 tee /etc/systemd/resolved.conf > /dev/null <<EOF
 [Resolve]
-DNS=127.0.0.1:8600
-DNSSEC=false
+DNS=127.0.0.1
 Domains=~consul
-FallbackDNS=10.250.0.2
 EOF
 
 echo "Updating /etc/resolv.conf ..."
 tee /etc/resolv.conf > /dev/null <<EOF
-nameserver 127.0.0.53
-options edns0 trust-ad
+[Resolve]
+DNS=127.0.0.1
+Domains=~consul
 EOF
 
 echo "Creating /etc/consul.d/consul.hcl ..."
@@ -83,9 +82,9 @@ retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_va
 server = false
 node_name = "grafana-$INSTANCE_ID-kandula"
 check = {
-  id = "ssh"
-  name = "SSH TCP on port 22"
-  tcp = "localhost:22"
+  id = "grafana"
+  name = "grafana dashboard port 3000"
+  tcp = "localhost:3000"
   interval = "10s"
   timeout = "1s"
 }
@@ -110,6 +109,67 @@ sudo apt-get install -y software-properties-common wget
 sudo wget -q -O /usr/share/keyrings/grafana.key https://apt.grafana.com/gpg.key
 echo "deb [signed-by=/usr/share/keyrings/grafana.key] https://apt.grafana.com stable main" | sudo tee -a /etc/apt/sources.list.d/grafana.list
 sudo apt-get update
-sudo apt-get install grafana
+sudo apt-get install -y grafana
+sudo /bin/systemctl start grafana-server
+
+# ------------------------------------
+# Node Exporter
+# ------------------------------------
+
+node_exporter_ver="0.18.0"
+
+wget \
+  https://github.com/prometheus/node_exporter/releases/download/v$node_exporter_ver/node_exporter-$node_exporter_ver.linux-amd64.tar.gz \
+  -O /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz
+
+tar zxvf /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz
+
+sudo cp ./node_exporter-$node_exporter_ver.linux-amd64/node_exporter /usr/local/bin
+
+sudo useradd --no-create-home --shell /bin/false node_exporter
+
+sudo chown node_exporter:node_exporter /usr/local/bin/node_exporter
+
+sudo mkdir -p /var/lib/node_exporter/textfile_collector
+sudo chown node_exporter:node_exporter /var/lib/node_exporter
+sudo chown node_exporter:node_exporter /var/lib/node_exporter/textfile_collector
+
+sudo tee /etc/systemd/system/node_exporter.service &>/dev/null << EOF
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter --collector.textfile.directory /var/lib/node_exporter/textfile_collector \
+ --no-collector.infiniband
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+rm -rf /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz \
+  ./node_exporter-$node_exporter_ver.linux-amd64
+
+sudo systemctl daemon-reload
+
+sudo systemctl start node_exporter
+
+systemctl status --no-pager node_exporter
+
+sudo systemctl enable node_exporter
 sudo /bin/systemctl start grafana-server
 sudo /bin/systemctl status grafana-server
+
+sudo systemctl enable consul.service
+sudo systemctl restart consul.service
+echo "Restarting systemd-resolved service ..."
+systemctl restart systemd-resolved
+
+consul services register -name grafana -port 3000
+
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol udp --match udp --dport 53 --jump REDIRECT --to-ports 8600
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol tcp --match tcp --dport 53 --jump REDIRECT --to-ports 8600

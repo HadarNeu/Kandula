@@ -29,7 +29,7 @@ resource "aws_iam_policy" "consul-join" {
 }
 
 # Attach the policy
-resource "aws_iam_policy_attachment" "consul-join" {
+resource "aws_iam_policy_attachment" "consul-join-att-consul" {
   name       = "consul-join-kandula"
   roles      = [aws_iam_role.consul-join.name]
   policy_arn = aws_iam_policy.consul-join.arn
@@ -76,12 +76,15 @@ resource "aws_iam_policy" "ec2-full-access" {
   }
 }
 
-# Attach the policy
-resource "aws_iam_policy_attachment" "ec2-full-access" {
-  name       = "ec2-full-access-kandula"
+# Attach the ec2 policy to jenkins
+resource "aws_iam_policy_attachment" "ec2-full-att-jenkins" {
+  name       = "ec2-full-access-att-jenkins-kandula"
   roles      = [aws_iam_role.jenkins-role.name]
   policy_arn = aws_iam_policy.ec2-full-access.arn
 }
+
+
+########Eks##########
 
 # Create the policy
 resource "aws_iam_policy" "eks-node" {
@@ -103,3 +106,43 @@ resource "aws_iam_policy_attachment" "eks-node" {
   roles      = [aws_iam_role.jenkins-role.name]
   policy_arn = aws_iam_policy.eks-node.arn
 }
+
+
+########Ansible ##########
+
+# Create an IAM role for the ansible server
+resource "aws_iam_role" "ansible-role" {
+  name               = "role-ansible-kandula"
+  assume_role_policy = file("${path.module}/policies/assume-role.json")
+  tags = {
+    "Name" = "role-ansible-${var.project_name}"
+    "project" = "kandula"
+    "owner" = "hadar"
+    "env" = "prd"
+    "resource" = "role"
+  }
+}
+
+# Create the instance profile
+resource "aws_iam_instance_profile" "ansible-server" {
+  name  = "profile-ansible-kandula"
+  role = aws_iam_role.ansible-role.name
+}
+
+# Attach the ec2 policy to ansible
+resource "aws_iam_policy_attachment" "ec2-full-att-ansible" {
+  name       = "ec2-full-access-att-ansible-kandula"
+  roles      = [aws_iam_role.ansible-role.name]
+  policy_arn = aws_iam_policy.ec2-full-access.arn
+}
+
+# Attach the policy
+resource "aws_iam_policy_attachment" "consul-join-att-ansible" {
+  name       = "consul-join-att-ansible-kandula"
+  roles      = [aws_iam_role.ansible-role.name]
+  policy_arn = aws_iam_policy.consul-join.arn
+}
+
+
+
+

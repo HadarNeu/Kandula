@@ -9,7 +9,8 @@ resource "aws_db_instance" "postgres" {
   username             = "postgres"
   password             = var.rds_password
   port                 = 5432
-  publicly_accessible = false
+#   publicly_accessible = false
+  publicly_accessible = true
   skip_final_snapshot = true
 #   final_snapshot_identifier = "rds-postgres-final-snapshot-kandula"
 #   multi_az = true

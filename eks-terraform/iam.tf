@@ -166,6 +166,11 @@ resource "aws_iam_policy" "eks_node_policy" {
         "shield:ListProtections"
       ],
       "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": "rds:*",
+      "Resource": "arn:aws:rds:${var.aws_region}:${data.aws_caller_identity.current.id}:db:${var.rds-identifier}"
     }
   ]
 })

@@ -7,7 +7,11 @@ resource "aws_instance" "bastion" {
     subnet_id                   = module.kandula-vpc.public_subnets_id[count.index]
     associate_public_ip_address = true
     vpc_security_group_ids      = [aws_security_group.bastion_sg.id]
-
+    metadata_options {
+      http_endpoint = "enabled"
+      instance_metadata_tags = "enabled"
+    }
+      
     provisioner "file" {
       source      = "${var.key_location}"
       destination = "${var.key_destination}"

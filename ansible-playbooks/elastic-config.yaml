@@ -33,12 +33,15 @@
           cluster.initial_master_nodes: ["node-1"]
           # For more information, consult the network module documentation.
 
+    - name: register consul service
+      command: consul services register -name elastic -port 9200
+    
     - name: Enable elastic service on boot
       systemd:
         name: "elasticsearch"
         enabled: yes
 
-    - name: Start Node Exporter service
+    - name: Start elastic service
       service:
         name: "elasticsearch"
         state: "started"

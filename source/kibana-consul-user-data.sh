@@ -56,16 +56,15 @@ EOF
 echo "Creating /etc/systemd/resolved.conf ..."
 tee /etc/systemd/resolved.conf > /dev/null <<EOF
 [Resolve]
-DNS=127.0.0.1:8600
-DNSSEC=false
+DNS=127.0.0.1
 Domains=~consul
-FallbackDNS=10.250.0.2
 EOF
 
 echo "Updating /etc/resolv.conf ..."
 tee /etc/resolv.conf > /dev/null <<EOF
-nameserver 127.0.0.53
-options edns0 trust-ad
+[Resolve]
+DNS=127.0.0.1
+Domains=~consul
 EOF
 
 echo "Creating /etc/consul.d/consul.hcl ..."
@@ -81,11 +80,11 @@ enable_syslog = true
 log_level = "info"
 retry_join = ["provider=aws region=$AWS_REGION service=ec2 tag_key=consul tag_value=true"]
 server = false
-node_name = "elastic-$INSTANCE_ID-kandula"
+node_name = "kibana-$INSTANCE_ID-kandula"
 check = {
-  id = "ssh"
-  name = "SSH TCP on port 22"
-  tcp = "localhost:22"
+  id = "api"
+  name = "api http port 5601"
+  tcp = "localhost:5601"
   interval = "10s"
   timeout = "1s"
 }
@@ -101,12 +100,77 @@ systemctl restart systemd-resolved
 
 
 # ------------------------------------
-# Elasticsearch Setup
+# Kibana Setup
 # ------------------------------------
 
-curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
-echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
-sudo apt update
-sudo apt -y install elasticsearch
-sudo systemctl start elasticsearch
-sudo systemctl enable elasticsearch
+wget https://artifacts.elastic.co/downloads/kibana/kibana-oss-7.10.2-amd64.deb
+sudo dpkg -i kibana-*.deb
+echo 'server.host: "0.0.0.0"' > /etc/kibana/kibana.yml
+echo elasticsearch.hosts: ["http://elastic.service.consul:9200"] >> /etc/kibana/kibana.yml
+
+tee /etc/kibana/kibana.yml > /dev/null <<EOF
+server.port: 5601
+server.host: "0.0.0.0"
+elasticsearch.hosts: ["http://elastic.service.consul:9200"]
+EOF
+sudo systemctl enable kibana
+sudo systemctl start kibana
+
+# ------------------------------------
+# Node Exporter
+# ------------------------------------
+
+node_exporter_ver="0.18.0"
+
+wget \
+  https://github.com/prometheus/node_exporter/releases/download/v$node_exporter_ver/node_exporter-$node_exporter_ver.linux-amd64.tar.gz \
+  -O /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz
+
+tar zxvf /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz
+
+sudo cp ./node_exporter-$node_exporter_ver.linux-amd64/node_exporter /usr/local/bin
+
+sudo useradd --no-create-home --shell /bin/false node_exporter
+
+sudo chown node_exporter:node_exporter /usr/local/bin/node_exporter
+
+sudo mkdir -p /var/lib/node_exporter/textfile_collector
+sudo chown node_exporter:node_exporter /var/lib/node_exporter
+sudo chown node_exporter:node_exporter /var/lib/node_exporter/textfile_collector
+
+sudo tee /etc/systemd/system/node_exporter.service &>/dev/null << EOF
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=node_exporter
+Group=node_exporter
+Type=simple
+ExecStart=/usr/local/bin/node_exporter --collector.textfile.directory /var/lib/node_exporter/textfile_collector \
+ --no-collector.infiniband
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+rm -rf /tmp/node_exporter-$node_exporter_ver.linux-amd64.tar.gz \
+  ./node_exporter-$node_exporter_ver.linux-amd64
+
+sudo systemctl daemon-reload
+
+systemctl status --no-pager node_exporter
+
+sudo systemctl enable node_exporter
+sudo systemctl start node_exporter
+
+sudo systemctl enable consul.service
+sudo systemctl restart consul.service
+echo "Restarting systemd-resolved service ..."
+systemctl restart systemd-resolved
+
+consul services register -name kibana -port 5601
+
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol udp --match udp --dport 53 --jump REDIRECT --to-ports 8600
+sudo iptables --table nat --append OUTPUT --destination localhost --protocol tcp --match tcp --dport 53 --jump REDIRECT --to-ports 8600

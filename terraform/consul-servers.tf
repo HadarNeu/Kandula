@@ -28,6 +28,10 @@ resource "aws_instance" "consul_server_subnet2" {
   key_name      = var.key_name
   subnet_id                   = module.kandula-vpc.private_subnets_id[1]
   iam_instance_profile   = aws_iam_instance_profile.consul-join.name
+  metadata_options {
+    http_endpoint = "enabled"
+    instance_metadata_tags = "enabled"
+  }
 
   vpc_security_group_ids = [aws_security_group.consul-servers-sg.id]
   user_data            = file("${path.module}/scripts/consul-server-user-data.sh")
@@ -107,6 +111,17 @@ resource "aws_security_group_rule" "consul_servers_serf_lan_access" {
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
 }
+
+resource "aws_security_group_rule" "consul_node_expoter_access" {
+  description       = "allow http access from anywhere"
+  from_port         = 9100
+  protocol          = "tcp"
+  security_group_id = aws_security_group.consul-servers-sg.id
+  to_port           = 9100
+  type              = "ingress"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
 
 resource "aws_security_group_rule" "consul_servers_outbound_anywhere" {
   description       = "allow outbound traffic to anywhere"
