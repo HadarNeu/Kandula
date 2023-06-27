@@ -41,21 +41,21 @@
 		}
         stage('Build Docker Image') {
             steps {
-				sh 'cd Kandula-App'
-                script {
-                    withCredentials([file(credentialsId: 'kandula-config-env')]) {
-						script {
-							dockerImage = docker.build "${IMAGE_REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
-						}						
-                    }
-                }
+				dir('Kandula/Kandula-App') {
+					script {
+						withCredentials([file(credentialsId: 'kandula-config-env')]) {
+							script {
+								dockerImage = docker.build "${IMAGE_REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+							}						
+						}
+					}
+				}
             }
         }
 	         
 	        // Building Docker images
 	        stage('Building image') {
 	            steps{
-					sh 'cd Kandula-App'
 	                script {
 	                    dockerImage = docker.build "${IMAGE_REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
 	                }
