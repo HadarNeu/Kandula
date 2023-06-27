@@ -28,7 +28,7 @@
 
         stage('Print RDS Endpoint') {
             steps {
-                echo "RDS Endpoint: $env.DB_HOST"
+                echo "RDS Endpoint: ${DB_HOST}"
                 // Use the RDS_ENDPOINT variable in subsequent steps
             }
         }
