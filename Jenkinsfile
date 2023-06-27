@@ -5,10 +5,33 @@
 	            label 'aws-linux-ec2-plugin'
 	        }
 	    }
-	    
-	    stages {
-	        
 
+	    environment {
+        	DB_HOST = ""
+    	}
+
+	    stages {
+	    
+		stage('Get RDS Endpoint') {
+            steps {
+                withAWS(credentials:'aws-creds-hadarnoy') {
+				// withAWS(region: '${AWS_DEFAULT_REGION}', credentials: 'my-aws-credentials') {
+                    script {
+                        env.DB_HOST = sh(
+                            script: "aws rds describe-db-instances --filters Name=tag:project,Values=kandula --query 'DBInstances[0].Endpoint.Address' --output text",
+                            returnStdout: true
+                        ).trim()
+                    }
+                }
+            }
+        }
+
+        stage('Print RDS Endpoint') {
+            steps {
+                echo "RDS Endpoint: $DB_HOST"
+                // Use the RDS_ENDPOINT variable in subsequent steps
+            }
+        }
         stage('Cloning Git') {
             steps {
                 git url: "${REPO_URL}", branch: 'local-ubuntu',
@@ -26,6 +49,7 @@
 	        // Building Docker images
 	        stage('Building image') {
 	            steps{
+					sh 'cd Kandula-App'
 	                script {
 	                    dockerImage = docker.build "${IMAGE_REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
 	                }
