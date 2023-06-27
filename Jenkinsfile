@@ -33,12 +33,24 @@
             }
         }
 	        
-	        // Restarting docker     
-	        stage ('Restart docker') {
-	             steps {
-	                 sh 'sudo service docker restart'
-	          }
-	        }
+		// Restarting docker     
+		stage ('Restart docker') {
+				steps {
+					sh 'sudo service docker restart'
+			}
+		}
+        stage('Build Docker Image') {
+            steps {
+				sh 'cd Kandula-App'
+                script {
+                    withCredentials([file(credentialsId: 'kandula-config-env')]) {
+						script {
+							dockerImage = docker.build "${IMAGE_REPO_NAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+						}						
+                    }
+                }
+            }
+        }
 	         
 	        // Building Docker images
 	        stage('Building image') {
@@ -72,19 +84,26 @@
 	        stage ("Deploy to EKS") {
 	            steps {
 					withAWS(credentials:'aws-creds-hadarnoy') {
-						sh "kubectl apply -f deployment-kandula.yaml"
-						sh "kubectl apply -f lb-service-kandula.yaml"
-					}
+						withCredentials([file(credentialsId: 'secrets-kandula')]) {
+							sh "kubectl apply -f ../k8s/kandula-ns.yaml"
+							sh "kubectl apply -f ../k8s/secrets-kandula.yaml"
+							sh "kubectl apply -f ../k8s/deployment-kandula.yaml"
+							sh "kubectl apply -f ../k8s/lb-service-kandula.yaml"
+						}
 
 	                }
-	              }
+	            }
+			}
 	        stage ("Display app link") {
                 steps {
 					withAWS(credentials:'aws-creds-hadarnoy') {
-						sh "kubectl describe svc kandula-app-lb-service | grep 'LoadBalancer'"
+						sh "export ALB=$(kubectl describe svc kandula-app-lb-service | grep 'LoadBalancer')"
+						sh "echo ALB"
 					}
                 }
             }
+
+
 
 
             //  TODO Slack notification 
