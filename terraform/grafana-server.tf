@@ -70,7 +70,7 @@ resource "aws_security_group_rule" "grafana_ssh_acess" {
   security_group_id = aws_security_group.grafana-server-sg.id
   to_port           = 22
   type              = "ingress"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = [var.vpn_endpoint]
 }
 
 resource "aws_security_group_rule" "grafana_consul_dns_access" {

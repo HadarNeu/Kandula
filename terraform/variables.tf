@@ -54,6 +54,13 @@ variable "key_destination" {
   type        = string
 }
 
+variable "vpn_endpoint" {
+  description = "The vpn endpoint"
+  default     = "212.199.61.110/32"
+  type        = string
+}
+
+
 ########JENKINS################
 variable "jenkins-ami-name" {
   description = "The name of the pre-configured Jenkins ami"

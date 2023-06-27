@@ -91,7 +91,7 @@ resource "aws_security_group_rule" "elk_ssh_acess" {
   security_group_id = aws_security_group.elk-server-sg.id
   to_port           = 22
   type              = "ingress"
-  cidr_blocks       = ["0.0.0.0/0"]
+  cidr_blocks       = [var.vpn_endpoint]
 }
 
 resource "aws_security_group_rule" "elk_consul_dns_acess" {
